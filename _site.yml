@@ -1,12 +1,72 @@
 name: "learnmultilevelmodels"
 title: "Learn multilevel models"
+base_url: https://kogpsy.github.io/learnmultilevelmodels
+repository_url: https://github.com/kogpsy/learnmultilevelmodels
+source_url: https://github.com/kogpsy/learnmultilevelmodels
 description: |
-  &quot;Learn multilevelmodel&quot;
-output_dir: "_docs"
+  Learn multilevel modelsb
+include: ["slides/", "data/"]
+exclude: ["_do_not_build/", "jasp"]
+output_dir: "docs"
+theme: css/theme.css
+creative_commons: CC BY
+# cookie_consent:
+#   style: simple
+#   type: express
+#   palette: light
+#   lang: en
+#   cookies_policy: url
 navbar:
-  right:
-    - text: "Home"
+  # left:
+  #   - icon: fas fa-laptop-code
+  #     href: https://www.kog.psy.unibe.ch/
+  left:
+    - icon: fa-home
       href: index.html
-    - text: "About"
-      href: about.html
-output: distill::distill_article
+
+    - text: "Syllabus"
+      menu:
+        - text: "Übersicht"
+          href: uebersicht.html
+        - text: "Leistungskontrolle"
+          href: leistungskontrolle.html
+        - text: "Rmarkdown"
+          href: rmarkdown.html
+
+    - text: "Übungen"
+      menu:
+        - text: "Übung 1"
+          href: exercise-1.html
+        - text: "Übung 1: Lösung"
+          href: solution-1.html
+        - text: "Übung 2"
+          href: exercise-2.html
+        - text: "Übung 2: Lösung"
+          href: solution-2.html
+        - text: "Übung 3 (nicht abgeben)"
+          href: exercise-3.html
+
+
+  right:
+    - text: "Kapitel"
+      menu:
+        - text: "About"
+          href: about.html
+        - text: "Home"
+          href: index.html
+
+
+    - text: "Slides"
+      menu:
+        - text: "About"
+          href: about.html
+
+    - icon: fab fa-github
+      href: https://github.com/kogpsy/learnmultilevelmodels
+
+
+output:
+  distill::distill_article:
+    toc: true
+    toc_float: true
+    css: css/style.css

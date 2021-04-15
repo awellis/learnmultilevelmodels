@@ -37,12 +37,11 @@ Participants are also encouraged to bring their own datasets.
 
 ## Prerequisites
 
-Basic knowledge of regression models and R is a necessity. Previous exposure to
-multilevel models and longitudinal models would be helpful, but is not strictly
-necessary. If you need to brush up on your R skills and statistical knowledge,
-you can prepare for the workshop by working through this online script:
-[https://methodenlehre.github.io/intro-to-rstats](https://methodenlehre.github.io/intro-to-rstats). Previous knowledge of
-Bayesian statistics is not required.
+Basic knowledge of regression models and R is a necessity. I strongly recommend
+that you prepare for the workshop by working through this online script:
+[https://methodenlehre.github.io/intro-to-rstats](https://methodenlehre.github.io/intro-to-rstats).
+Previous exposure to multilevel models and longitudinal models would be helpful,
+but is not strictly necessary. Knowledge of Bayesian statistics is not required.
 
 ## Software
 
