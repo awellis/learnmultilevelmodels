@@ -1,5 +1,5 @@
 ---
-title: "&quot;Learn multilevelmodel&quot;"
+title: "Learn multilevelmodel;"
 site: distill::distill_website
 listing: posts
 ---
