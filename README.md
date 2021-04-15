@@ -48,6 +48,6 @@ but is not strictly necessary. Knowledge of Bayesian statistics is not required.
 We will be using R and Rstudio, as well a variety of R packages. It is
 advisable to ensure that you have a working R installation before the workshop
 starts, and that you install the two R packages `rstan` and `brms`. Detailed
-instructions for installing these packages on all platforms can be found here:
+instructions for installing these packages on all platforms can be found at
 [https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started)
-and here: [https://paul-buerkner.github.io/brms](https://paul-buerkner.github.io/brms).
+and [https://paul-buerkner.github.io/brms](https://paul-buerkner.github.io/brms).
