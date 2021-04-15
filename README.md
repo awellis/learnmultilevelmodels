@@ -23,7 +23,7 @@ Specific topics include:
   
 * Model comparison & hypothesis testing
     + Bayes factors
-    + Out of sample predictive accuracy (LOO)
+    + Out-of-sample predictive accuracy (LOO)
   
 * Specifying multilevel generalized linear models
   
