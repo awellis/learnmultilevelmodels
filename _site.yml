@@ -1,8 +1,8 @@
 name: "learnmultilevelmodels"
-title: "&quot;Learn multilevelmodel&quot;"
+title: "Learn multilevel models"
 description: |
   &quot;Learn multilevelmodel&quot;
-output_dir: "_site"
+output_dir: "_docs"
 navbar:
   right:
     - text: "Home"

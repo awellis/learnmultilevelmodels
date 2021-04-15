@@ -6,14 +6,14 @@
       "description": "Some additional details about the blog",
       "author": [],
       "contents": "\nThe talk will be about Bayesian multilevel models and their implementation in R using the package brms. We will start with a short introduction to multilevel modeling and to Bayesian statistics in general followed by an introduction to Stan, which is a flexible language for fitting open-ended Bayesian models. We will then explain how to access Stan using the standard R formula syntax via the brms package. The package supports a wide range of response distributions and modeling options such as splines, autocorrelation, and censoring all in a multilevel context. A lot of post-processing and plotting methods are implemented as well. Some examples from Psychology and Medicine will be discussed.\n\n\n\n",
-      "last_modified": "2021-04-15T16:18:14+02:00"
+      "last_modified": "2021-04-15T16:19:09+02:00"
     },
     {
       "path": "index.html",
       "title": "&quot;Learn multilevelmodel&quot;",
       "author": [],
       "contents": "\n\n\n\n",
-      "last_modified": "2021-04-15T16:18:14+02:00"
+      "last_modified": "2021-04-15T16:19:09+02:00"
     }
   ],
   "collections": ["posts/posts.json"]
