@@ -1,7 +1,7 @@
 # Learn Bayesian multilevel modelling
 Graduate School workshop 2021
 
-[Online Skript](https://kogpsy.github.io/learnmultilevelmodels/)
+[Online Skript](https://awellis.github.io/learnmultilevelmodels/)
 
 ## Workshop contents
 This workshop is designed to provide a practical introduction to basic
