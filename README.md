@@ -13,7 +13,9 @@ followed by an introduction to Stan, a probabilistic programming language for
 fitting Bayesian models. We will then learn how to use the R package brms, which
 provides a user-friendly interface to Stan. The package supports a wide range of
 response distributions and modeling options, and allows us to fit multilevel
-generalized linear models.
+generalized linear models. Depending on participants' wishes, we can take a
+closer look at modelling various types of data, such as choices, response times,
+ordinal or longitudinal data.
 
 Specific topics include:
 
