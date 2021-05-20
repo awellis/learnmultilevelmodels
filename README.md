@@ -47,7 +47,7 @@ but is not strictly necessary. Knowledge of Bayesian statistics is not required.
 
 ## Software
 
-We will be using R and Rstudio, as well a variety of R packages. It is
+We will be using R and RStudio, as well a variety of R packages. It is
 advisable to ensure that you have a working R installation before the workshop
 starts, and that you install the two R packages `rstan` and `brms`. Detailed
 instructions for installing these packages on all platforms can be found at

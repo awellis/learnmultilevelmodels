@@ -6,6 +6,11 @@
     <atom:link href="https://kogpsy.github.io/learnmultilevelmodels/index.xml" rel="self" type="application/rss+xml"/>
     <description>Learn multilevel modelsb
 </description>
+    <image>
+      <title>Learn multilevel models</title>
+      <url>https://kogpsy.github.io/learnmultilevelmodels/images/icon.ico</url>
+      <link>https://kogpsy.github.io/learnmultilevelmodels</link>
+    </image>
     <generator>Distill</generator>
     <lastBuildDate>Wed, 14 Apr 2021 00:00:00 +0000</lastBuildDate>
     <item>

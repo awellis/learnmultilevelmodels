@@ -6,9 +6,10 @@ source_url: https://github.com/kogpsy/learnmultilevelmodels
 description: |
   Learn multilevel modelsb
 include: ["slides/", "data/"]
-exclude: ["_do_not_build/", "jasp"]
+exclude: ["_do_not_build/"]
 output_dir: "docs"
 theme: css/theme.css
+favicon: images/icon.ico
 creative_commons: CC BY
 # cookie_consent:
 #   style: simple
@@ -17,6 +18,9 @@ creative_commons: CC BY
 #   lang: en
 #   cookies_policy: url
 navbar:
+  logo:
+    image: images/icon.png
+    href: https://www.kog.psy.unibe.ch/
   # left:
   #   - icon: fas fa-laptop-code
   #     href: https://www.kog.psy.unibe.ch/
@@ -24,42 +28,35 @@ navbar:
     - icon: fa-home
       href: index.html
 
-    - text: "Syllabus"
+    - text: "Information"
       menu:
-        - text: "Übersicht"
-          href: uebersicht.html
-        - text: "Leistungskontrolle"
-          href: leistungskontrolle.html
-        - text: "Rmarkdown"
-          href: rmarkdown.html
+        - text: "Intro"
+          href: intro.html
+        - text: "Topics"
+          href: topics.html
 
-    - text: "Übungen"
-      menu:
-        - text: "Übung 1"
-          href: exercise-1.html
-        - text: "Übung 1: Lösung"
-          href: solution-1.html
-        - text: "Übung 2"
-          href: exercise-2.html
-        - text: "Übung 2: Lösung"
-          href: solution-2.html
-        - text: "Übung 3 (nicht abgeben)"
-          href: exercise-3.html
 
+    # - text: "Solutions"
+    #   menu:
+    #     - text: "Übung 1"
+    #       href: exercise-1.html
 
   right:
-    - text: "Kapitel"
-      menu:
-        - text: "About"
-          href: about.html
-        - text: "Home"
-          href: index.html
-
-
     - text: "Slides"
       menu:
-        - text: "About"
-          href: about.html
+        - text: "Introduction to Bayesian Inference"
+          href: slides/01-intro-slides.html
+
+    - text: "Assignments"
+      menu:
+        - text: "Exercise 1"
+          href: exercise-1.html
+
+
+    # - text: "Documents"
+    #   menu:
+    #     - text: "About"
+    #       href: about.html
 
     - icon: fab fa-github
       href: https://github.com/kogpsy/learnmultilevelmodels
