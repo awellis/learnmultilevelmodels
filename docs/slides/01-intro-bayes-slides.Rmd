@@ -309,7 +309,7 @@ If we want to sumarize the posterior, this means computing integrals (area under
 .panel[.panel-name[N. samples]
 ```{r}
 n_samples <- 1e4
-set.seed(3) # wegen Reproduzierbarkeit
+set.seed(3) 
 ```
 
 ```{r echo=TRUE}
