@@ -25,9 +25,10 @@ output:
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+# Topics
 
+## Planned contents
 
-## Workshop contents
 This workshop is designed to provide a practical introduction to basic
 and advanced multilevel models. Participants will learn how to fit models using
 both maximum likelihood and Bayesian methods, although the focus will be on
@@ -57,23 +58,27 @@ Specific topics include:
   
 * A principled Bayesian workflow for data analysis
 
-We will focus on learning new topics during the morning sessions, and
-participants should work through the assignments during the afternoon sessions.
-Participants are also encouraged to bring their own datasets.
 
-## Prerequisites
+## Your expectations/questions
 
-Basic knowledge of regression models and R is a necessity. I strongly recommend
-that you prepare for the workshop by working through this online script:
-[https://methodenlehre.github.io/intro-to-rstats](https://methodenlehre.github.io/intro-to-rstats).
-Previous exposure to multilevel models and longitudinal models would be helpful,
-but is not strictly necessary. Knowledge of Bayesian statistics is not required.
+Since most of you expressed an interest in Bayesian statistics, we will mostly multilevel generalized regression models from this perspective.
 
-## Software
+### Specific topics
 
-We will be using R and RStudio, as well a variety of R packages. It is
-advisable to ensure that you have a working R installation before the workshop
-starts, and that you install the two R packages `rstan` and `brms`. Detailed
-instructions for installing these packages on all platforms can be found at
-[https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started)
-and [https://paul-buerkner.github.io/brms](https://paul-buerkner.github.io/brms).
+- advantages of Bayesian over frequentist statistics
+- how to select priors
+- preparing data
+- binary (choice) data
+- response times
+- repeated measures and other hierarchical (multilevel) designs, inlcuding longitudinal data
+- crossed random effects, e.g. lexical decision tasks
+- categorical variables
+- moderation / mediation
+- SEM (structural equation models)
+- model comparison / hypothesis testing in mixed effects models
+- dyadic data
+- nonlinear regression
+
+
+
+

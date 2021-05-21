@@ -22,7 +22,7 @@ div.example {
   background-position: 15px center;
   min-height: 120px;
   color: #000000;
-  background-color: #241926;
+  background-color: #fcfcfc;
   border: dashed 5px #ffffff;
 }
 
@@ -36,8 +36,8 @@ div.fyi {
   background-position: 15px center;
   min-height: 120px;
   color: #000000;
-  background-color: #d1cdce;
-  border: dashed 5px #B33F53;
+  background-color: #fcfcfc;
+  border: dashed 5px #F5B895;
 }
 
 div.exercise {
@@ -76,8 +76,8 @@ div.apply {
   background-position: 15px center;
   min-height: 120px;
   color: #000000;
-  background-color: #e5e9f0;
-  border: dashed 5px #b48ead;
+  background-color: #B6CADA;
+  border: dashed 5px #638CC7;
 }
 
 div.puzzle {

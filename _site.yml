@@ -1,10 +1,10 @@
 name: "learnmultilevelmodels"
 title: "Learn multilevel models"
-base_url: https://kogpsy.github.io/learnmultilevelmodels
-repository_url: https://github.com/kogpsy/learnmultilevelmodels
-source_url: https://github.com/kogpsy/learnmultilevelmodels
+base_url: https://awellis.github.io/learnmultilevelmodels
+repository_url: https://github.com/awellis/learnmultilevelmodels
+source_url: https://github.com/awellis/learnmultilevelmodels
 description: |
-  Learn multilevel modelsb
+  Bayesian multilevel modelling workshop 2021
 include: ["slides/", "data/"]
 exclude: ["_do_not_build/"]
 output_dir: "docs"
@@ -59,7 +59,7 @@ navbar:
     #       href: about.html
 
     - icon: fab fa-github
-      href: https://github.com/kogpsy/learnmultilevelmodels
+      href: https://github.com/awellis/learnmultilevelmodels
 
 
 output:

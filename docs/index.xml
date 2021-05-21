@@ -2,25 +2,24 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
   <channel>
     <title>Learn multilevel models</title>
-    <link>https://kogpsy.github.io/learnmultilevelmodels</link>
-    <atom:link href="https://kogpsy.github.io/learnmultilevelmodels/index.xml" rel="self" type="application/rss+xml"/>
-    <description>Learn multilevel modelsb
+    <link>https://awellis.github.io/learnmultilevelmodels</link>
+    <atom:link href="https://awellis.github.io/learnmultilevelmodels/index.xml" rel="self" type="application/rss+xml"/>
+    <description>Bayesian multilevel modelling workshop 2021
 </description>
     <image>
       <title>Learn multilevel models</title>
-      <url>https://kogpsy.github.io/learnmultilevelmodels/images/icon.ico</url>
-      <link>https://kogpsy.github.io/learnmultilevelmodels</link>
+      <url>https://awellis.github.io/learnmultilevelmodels/images/icon.ico</url>
+      <link>https://awellis.github.io/learnmultilevelmodels</link>
     </image>
     <generator>Distill</generator>
-    <lastBuildDate>Wed, 14 Apr 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 21 May 2021 00:00:00 +0000</lastBuildDate>
     <item>
-      <title>Welcome to &amp;quot;Learn multilevelmodel&amp;quot;</title>
-      <dc:creator>Nora Jones</dc:creator>
-      <link>https://kogpsy.github.io/learnmultilevelmodels/posts/welcome</link>
-      <description>Welcome to our new blog, &amp;quot;Learn multilevelmodel&amp;quot;. We hope you enjoy 
-reading what we have to say!</description>
-      <guid>https://kogpsy.github.io/learnmultilevelmodels/posts/welcome</guid>
-      <pubDate>Wed, 14 Apr 2021 00:00:00 +0000</pubDate>
+      <title>Zoom links</title>
+      <dc:creator>Andrew Ellis</dc:creator>
+      <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-21-zoom</link>
+      <description>Course dates and Zoom links.</description>
+      <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-21-zoom</guid>
+      <pubDate>Fri, 21 May 2021 00:00:00 +0000</pubDate>
     </item>
   </channel>
 </rss>

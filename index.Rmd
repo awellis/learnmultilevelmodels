@@ -1,5 +1,5 @@
 ---
-title: "Learn multilevelmodel;"
+title: "Learn multilevel models workshop"
 site: distill::distill_website
 listing: posts
 ---

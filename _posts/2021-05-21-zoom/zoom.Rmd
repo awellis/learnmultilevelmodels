@@ -1,0 +1,42 @@
+---
+title: "Zoom links"
+description: |
+  Course dates and Zoom links.
+author:
+  - name: Andrew Ellis
+date: 05-21-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Friday mornings
+
+- Meeting ID: 644 5562 5717
+- Passcode: 879219
+
+- May 21, 2021 08:15
+- May 28, 2021 08:15
+- Jun 4, 2021 08:15
+
+🔗 [Join Zoom Meeting](https://unibe-ch.zoom.us/j/64455625717?pwd=MTVoWmxkVk81ZE5lK2RVRWFLRlJTZz09)
+
+
+
+
+## Saturday morning and afternoon
+
+- Meeting ID: 638 6457 0235
+- Passcode: 888908
+
+- May 29, 2021 09:15
+
+🔗 [Join Zoom Meeting](https://unibe-ch.zoom.us/j/63864570235?pwd=TmROZ2NVWnNmMzUwMEtRYytHaGxydz09)
+
+

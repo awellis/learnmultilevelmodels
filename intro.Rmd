@@ -27,6 +27,56 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
+# What is this workshop about?
+
+This workshop will focus on hierarchical (multilevel) regression models from various angles. While reading your expectations and questions regarding this workshop, it became clear that all of your points can be approached within the same framework, i.e. Bayesian hierarchical generalized regression models. We will spend a lot of time learning to understand and specify these types of models. However, we will focus mainly on learning how to implement and work with these models, rather than spending time looking at the formal math. Here, I will follow the approach taken by @mcelreathStatisticalRethinkingBayesian2020a, who emphasises that even mathematicians may have trouble understanding something until they see a working algorithm.
+
+Therefore, this workshop will be very hands-on. Everything we do will be illustrated with working code examples, and you are encouraged to try every single line of code for yourself.
+
+# Outline
+
+## Friday, May 21
+
+We will start with a general introduction to Bayesian inference, followed by an intro to the programming language Stan, and the R packages `rstan` and `brms`. Since we will be working almost exclusively with `brms` therafter, it is important to spend a bit of time here.
+
+We will dive straight into Bayesian inference here, without spending too much time on frequentist methods and the differences between the two approaches (we will focus on this mode when we get to model comparisons).
+
+We will then explore how models can be implemented as general (or generalized) linear models, and we will introduce multilevel models as a natural way of modelling reapeated measurements.
+
+
+## Friday, May 28
+
+## Saturday, May 29
+
+## Friday, June 4
 
 
 
+
+# Prerequisites
+
+Basic knowledge of regression models and R is a necessity. I strongly recommend
+that you prepare for the workshop by working through this online script:
+[https://methodenlehre.github.io/intro-to-rstats](https://methodenlehre.github.io/intro-to-rstats).
+Previous exposure to multilevel models and longitudinal models would be helpful,
+but is not strictly necessary. Knowledge of Bayesian statistics is not required.
+
+
+# Software
+
+We will be using R and RStudio, as well a variety of R packages. It is
+advisable to ensure that you have a working R installation before the workshop
+starts, and that you install the two R packages `rstan` and `brms`. Detailed
+instructions for installing these packages on all platforms can be found at
+[https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started)
+and [https://paul-buerkner.github.io/brms](https://paul-buerkner.github.io/brms).
+
+# Assignments
+We will focus on learning new topics during the morning sessions, and
+participants should work through the assignments during the afternoon sessions.
+Participants are also encouraged to bring their own datasets.
+
+
+# Zulip
+
+The [Zulip chat server](https://learnmultilevelmodels.zulipchat.com/) will be our communicatin platform for this workshop. We will use this for questions, assignments, troubleshooting, etc. Zulip can be used for synchronous or asynchronous chats, and has very good threading capabilities.  Zulip is also pretty easy to use, and uses Markdown for message formatting. This means that you can use Markdown to format `code` and equations.

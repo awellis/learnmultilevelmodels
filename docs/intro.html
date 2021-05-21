@@ -120,6 +120,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <meta name="citation_author_institution" content="Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern"/>
   <!--/radix_placeholder_meta_tags-->
   
+  <meta name="citation_reference" content="citation_title=Statistical rethinking: A bayesian course with examples in R and Stan, 2nd edition;citation_publication_date=2020;citation_publisher=CRC Press;citation_author=Richard McElreath"/>
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
@@ -2419,7 +2420,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     background-position: 15px center;
     min-height: 120px;
     color: #000000;
-    background-color: #241926;
+    background-color: #fcfcfc;
     border: dashed 5px #ffffff;
   }
 
@@ -2433,8 +2434,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     background-position: 15px center;
     min-height: 120px;
     color: #000000;
-    background-color: #d1cdce;
-    border: dashed 5px #B33F53;
+    background-color: #fcfcfc;
+    border: dashed 5px #F5B895;
   }
 
   div.exercise {
@@ -2473,8 +2474,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     background-position: 15px center;
     min-height: 120px;
     color: #000000;
-    background-color: #e5e9f0;
-    border: dashed 5px #b48ead;
+    background-color: #B6CADA;
+    border: dashed 5px #638CC7;
   }
 
   div.puzzle {
@@ -2597,7 +2598,7 @@ Assignments
 <a href="exercise-1.html">Exercise 1</a>
 </div>
 </div>
-<a href="https://github.com/kogpsy/learnmultilevelmodels">
+<a href="https://github.com/awellis/learnmultilevelmodels">
 <i class="fab fa-github" aria-hidden="true"></i>
 </a>
 <a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
@@ -2623,7 +2624,50 @@ Assignments
 </div>
 
 <div class="d-article">
+<div class="d-contents d-contents-float">
+<nav class="l-text toc figcaption" id="TOC">
+<h3>Contents</h3>
+<ul>
+<li><a href="#what-is-this-workshop-about">What is this workshop about?</a></li>
+<li><a href="#outline">Outline</a>
+<ul>
+<li><a href="#friday-may-21">Friday, May 21</a></li>
+<li><a href="#friday-may-28">Friday, May 28</a></li>
+<li><a href="#saturday-may-29">Saturday, May 29</a></li>
+<li><a href="#friday-june-4">Friday, June 4</a></li>
+</ul></li>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#software">Software</a></li>
+<li><a href="#assignments">Assignments</a></li>
+<li><a href="#zulip">Zulip</a></li>
+</ul>
+</nav>
+</div>
+<h1 id="what-is-this-workshop-about">What is this workshop about?</h1>
+<p>This workshop will focus on hierarchical (multilevel) regression models from various angles. While reading your expectations and questions regarding this workshop, it became clear that all of your points can be approached within the same framework, i.e. Bayesian hierarchical generalized regression models. We will spend a lot of time learning to understand and specify these types of models. However, we will focus mainly on learning how to implement and work with these models, rather than spending time looking at the formal math. Here, I will follow the approach taken by <span class="citation" data-cites="mcelreathStatisticalRethinkingBayesian2020a"><a href="#ref-mcelreathStatisticalRethinkingBayesian2020a" role="doc-biblioref">McElreath</a> (<a href="#ref-mcelreathStatisticalRethinkingBayesian2020a" role="doc-biblioref">2020</a>)</span>, who emphasises that even mathematicians may have trouble understanding something until they see a working algorithm.</p>
+<p>Therefore, this workshop will be very hands-on. Everything we do will be illustrated with working code examples, and you are encouraged to try every single line of code for yourself.</p>
+<h1 id="outline">Outline</h1>
+<h2 id="friday-may-21">Friday, May 21</h2>
+<p>We will start with a general introduction to Bayesian inference, followed by an intro to the programming language Stan, and the R packages <code>rstan</code> and <code>brms</code>. Since we will be working almost exclusively with <code>brms</code> therafter, it is important to spend a bit of time here.</p>
+<p>We will dive straight into Bayesian inference here, without spending too much time on frequentist methods and the differences between the two approaches (we will focus on this mode when we get to model comparisons).</p>
+<p>We will then explore how models can be implemented as general (or generalized) linear models, and we will introduce multilevel models as a natural way of modelling reapeated measurements.</p>
+<h2 id="friday-may-28">Friday, May 28</h2>
+<h2 id="saturday-may-29">Saturday, May 29</h2>
+<h2 id="friday-june-4">Friday, June 4</h2>
+<h1 id="prerequisites">Prerequisites</h1>
+<p>Basic knowledge of regression models and R is a necessity. I strongly recommend that you prepare for the workshop by working through this online script: <a href="https://methodenlehre.github.io/intro-to-rstats">https://methodenlehre.github.io/intro-to-rstats</a>. Previous exposure to multilevel models and longitudinal models would be helpful, but is not strictly necessary. Knowledge of Bayesian statistics is not required.</p>
+<h1 id="software">Software</h1>
+<p>We will be using R and RStudio, as well a variety of R packages. It is advisable to ensure that you have a working R installation before the workshop starts, and that you install the two R packages <code>rstan</code> and <code>brms</code>. Detailed instructions for installing these packages on all platforms can be found at <a href="https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started">https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started</a> and <a href="https://paul-buerkner.github.io/brms">https://paul-buerkner.github.io/brms</a>.</p>
+<h1 id="assignments">Assignments</h1>
+<p>We will focus on learning new topics during the morning sessions, and participants should work through the assignments during the afternoon sessions. Participants are also encouraged to bring their own datasets.</p>
+<h1 id="zulip">Zulip</h1>
+<p>The <a href="https://learnmultilevelmodels.zulipchat.com/">Zulip chat server</a> will be our communicatin platform for this workshop. We will use this for questions, assignments, troubleshooting, etc. Zulip can be used for synchronous or asynchronous chats, and has very good threading capabilities. Zulip is also pretty easy to use, and uses Markdown for message formatting. This means that you can use Markdown to format <code>code</code> and equations.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-mcelreathStatisticalRethinkingBayesian2020a" class="csl-entry" role="doc-biblioentry">
+McElreath, Richard. 2020. <em>Statistical Rethinking: <span>A</span> Bayesian Course with Examples in <span>R</span> and <span>Stan</span>, 2nd Edition</em>. 2nd ed. <span>CRC Press</span>. <a href="http://xcelab.net/rm/statistical-rethinking/">http://xcelab.net/rm/statistical-rethinking/</a>.
+</div>
+</div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
@@ -2639,9 +2683,9 @@ Assignments
 <h3 id="references">References</h3>
 <div id="references-listing"></div>
 <h3 id="updates-and-corrections">Corrections</h3>
-<p>If you see mistakes or want to suggest changes, please <a href="https://github.com/kogpsy/learnmultilevelmodels/issues/new">create an issue</a> on the source repository.</p>
+<p>If you see mistakes or want to suggest changes, please <a href="https://github.com/awellis/learnmultilevelmodels/issues/new">create an issue</a> on the source repository.</p>
 <h3 id="reuse">Reuse</h3>
-<p>Text and figures are licensed under Creative Commons Attribution <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Source code is available at <a href="https://github.com/kogpsy/learnmultilevelmodels">https://github.com/kogpsy/learnmultilevelmodels</a>, unless otherwise noted. The figures that have been reused from other sources don't fall under this license and can be recognized by a note in their caption: "Figure from ...".</p>
+<p>Text and figures are licensed under Creative Commons Attribution <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Source code is available at <a href="https://github.com/awellis/learnmultilevelmodels">https://github.com/awellis/learnmultilevelmodels</a>, unless otherwise noted. The figures that have been reused from other sources don't fall under this license and can be recognized by a note in their caption: "Figure from ...".</p>
 <h3 id="citation">Citation</h3>
 <p>For attribution, please cite this work as</p>
 <pre class="citation-appendix short">Ellis (2021, May 21). Learn multilevel models: Introduction. Retrieved from https://awellis.github.io/learnmultilevelmodels/intro.html</pre>
