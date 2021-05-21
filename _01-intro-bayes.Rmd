@@ -1,0 +1,92 @@
+---
+title: "Intro to Bayesian Inference"
+description: | 
+  Grid approximation
+date: 05-21-2021
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/01-intro-bayes.html
+bibliography: bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+library(tidyverse)
+```
+
+```{r }
+library(tidyverse)
+library(viridis)
+library(kableExtra)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+
+```{r echo=TRUE}
+set.seed(12)
+
+# Number of people wearing fancy hats
+N_fancyhats <- 50 
+
+# Number of people not wearing fancy hats
+N_nofancyhats <- 50
+
+# Population mean of creativity for people wearing fancy hats
+mu_fancyhats <- 103 
+
+# Population mean of creativity for people wearing no fancy hats
+mu_nofancyhats <- 98 
+
+# Average population standard deviation of both groups
+sigma <- 15 
+
+# Generate data
+fancyhats = tibble(Creativity = rnorm(N_fancyhats, mu_fancyhats, sigma),
+               Group = "Fancy Hat")
+
+nofancyhats = tibble(Creativity = rnorm(N_nofancyhats, mu_nofancyhats, sigma),
+                 Group = "No Fancy Hat")
+
+
+FancyHat <- bind_rows(fancyhats, nofancyhats)  %>%
+    mutate(Group = fct_relevel(as.factor(Group), "No Fancy Hat"))
+```
+
+
+```{r}
+kbl(FancyHat) %>%
+  kable_paper() %>%
+  scroll_box(width = "500px", height = "200px")
+```
+
+
+```{r}
+FancyHat %>% 
+    ggplot() +
+    geom_boxplot ((aes(y = Creativity, x = Group))) +
+    labs(title= "Box Plot of Creativity Values")
+```
+```{r}
+fancyhat_ttest <- t.test(Creativity ~ Group,
+       var.equal = TRUE,
+       data = FancyHat)
+```
+
+
+## Degree of belief
+

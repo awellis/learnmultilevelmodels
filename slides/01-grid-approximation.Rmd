@@ -1,0 +1,74 @@
+---
+title: "Intro to Bayesian Statistics"
+session: 1
+subtitle: "Part 1 <br/> Grid Approximation"
+author: "Andrew Ellis"
+# institute: "Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern"
+institute: "Bayesian multilevel modelling workshop 2021"
+date: 05-21-2021
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["css/xaringan-themer.css", "css/slides-style.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      ratio: 16:10
+      countIncrementalSlides: false
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r load-packages, include=FALSE, warning=FALSE}
+library(tidyverse)
+library(rmarkdown)
+library(countdown)
+library(kableExtra)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+
+
+
+```{r}
+wins <- 6
+games <- 9
+```
+
+---
+
+
+```{r}
+dbinom(x = wins, size = games, prob = 0.5)
+```
+
+---
+
+
+```{r}
+pbinom(q = 5, size = games, prob = 0.5)
+```
+
+---
+
+```{r}
+1 - pbinom(q = 5, size = games, prob = 0.5)
+```
+oder
+
+```{r}
+pbinom(q = 5, size = games, prob = 0.5, lower.tail = FALSE)
+```
+
+
+---
+
+

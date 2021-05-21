@@ -1,0 +1,234 @@
+---
+title: "Intro to Bayesian Statistics"
+session: 1
+subtitle: "Part 1 <br/> Gentle introduction"
+author: "Andrew Ellis"
+# institute: "Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern"
+institute: "Bayesian multilevel modelling workshop 2021"
+date: 05-21-2021
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["css/xaringan-themer.css", "css/slides-style.css"]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      ratio: 16:10
+      countIncrementalSlides: false
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r load-packages, include=FALSE, warning=FALSE}
+library(tidyverse)
+library(rmarkdown)
+library(countdown)
+library(kableExtra)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+## Frequentist statistics
+
+Relies on:
+
+- point estimation
+- summary statistics
+- often uses null hypothesis significance testing
+
+Problems:
+
+- p-values can be hard to understand
+- confidence intervals are hard to understand
+- it is unclear whether p-values and confidence intervals really allow us to address the questions we care about.
+    + what is the probability that my hypothesis might be true?
+    + how can I quantify evidence against a null hypothesis?
+
+
+---
+
+## Example: t-test
+
+
+We want to compare two groups. One group is wearing fancy hats, the other a the control group. We are interested in their creativity scores.
+
+.panelset[
+.panel[.panel-name[Parameters]
+
+```{r}
+library(tidyverse)
+library(kableExtra)
+
+set.seed(12)
+# Number of people per group
+N <- 50 
+# Population mean of creativity for people wearing fancy hats
+mu_fancyhats <- 103 
+# Population mean of creativity for people wearing no fancy hats
+mu_nofancyhats <- 98 
+# Average population standard deviation of both groups
+sigma <- 15 
+```
+
+]
+
+.panel[.panel-name[Make dataframe]
+
+```{r}
+# Generate data
+fancyhats = tibble(Creativity = rnorm(N, mu_fancyhats, sigma),
+               Group = "Fancy Hat")
+nofancyhats = tibble(Creativity = rnorm(N, mu_nofancyhats, sigma),
+                 Group = "No Fancy Hat")
+FancyHat <- bind_rows(fancyhats, nofancyhats)  %>%
+    mutate(Group = fct_relevel(as.factor(Group), "No Fancy Hat"))
+```
+]
+
+.panel[.panel-name[Data]
+
+```{r}
+FancyHat
+```
+]
+.panel[.panel-name[Plot data]
+
+```{r echo=FALSE}
+FancyHat %>% 
+    ggplot() +
+    geom_boxplot ((aes(y = Creativity, x = Group))) +
+    labs(title= "Box Plot of Creativity Values")
+```
+
+]
+]
+
+
+---
+
+.panelset[
+.panel[.panel-name[Welch test]
+
+```{r}
+fancyhat_ttest <- t.test(Creativity ~ Group,
+       var.equal = FALSE,
+       data = FancyHat)
+```
+
+]
+.panel[.panel-name[Results]
+
+```{r}
+fancyhat_ttest_tab <- broom::tidy(fancyhat_ttest)
+```
+
+```{r}
+fancyhat_ttest_tab %>%
+    select(estimate, estimate1, estimate2, statistic, p.value, conf.low, conf.high) %>%
+    round(3) %>% 
+    kbl() %>%
+    kable_classic(full_width = FALSE, html_font = "Cambria")
+```
+
+]
+.panel[.panel-name[What have we done here?]
+
+1) We estimated two means (and two standard deviations). More specifically, we obtained **point estimates**. 
+
+2) We estimated the difference in means (again, a point estimate).
+
+3) We computed a test statistic..
+
+4) We computed the probability of obtaining a value for the test statistic that is at least as extreme as the one obtained. This is called a p-value.
+
+]]
+
+---
+
+.your-turn[
+
+- Can you explain what the p-value and confidence interval mean? 
+- What can you conclude from this analysis?
+- Can you think of any problems that might be associated with this type of approach?
+]
+
+```{r echo=FALSE}
+countdown(minutes = 3)
+```
+
+---
+
+
+## Interpretations of Probability
+
+- In the classical, frequentist approach, parameter, e.g. the means estimated above, do not have probability distributions.
+- Only events that can be repeated infinitely many times have a probability, and probability is simply relative frequency.
+- In the Bayesian worldview, probability quantifies *degree of belief*. More specificcally, our uncertainty is expressed as a probability distribution. Probability quantifies knowledge, and is not a fundamental property of things.
+
+---
+
+## Some Gamma distributions
+
+```{r gamma-dist, echo=FALSE, layout="l-body-outset"}
+library(tidyverse)
+
+tibble(x = seq(from = 0, to = 30, by = .1)) %>% 
+  tidyr::expand(x, nesting(alpha = c(2, 3), 
+                    beta  = c(0.9, 0.4))) %>% 
+  mutate(density = dgamma(x, alpha, beta),
+         group   = rep(letters[1:2], times = n() / 2)) %>% 
+  
+  ggplot(aes(x = x, ymin = 0, ymax = density, 
+             group = group, fill = group)) +
+  geom_ribbon(size = 0, alpha = 3/4) +
+  scale_fill_viridis_d(option = "B", direction = -1, 
+                       begin = 1/3, end = 2/3) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
+  scale_y_continuous(NULL, breaks = NULL) +
+  coord_cartesian(xlim = c(0, 30)) +
+    xlab("") +
+  theme(panel.grid = element_blank(),
+        legend.position = "none")
+```
+
+---
+
+
+## Bayesian inference
+
+- Parameters have probability distributions.
+- Parameters have prior distributions. These quantify our belief before we see the data.
+- We obtain posterior distributions instead of point estimates. Posterior distributions 
+reflect our belief after having observed data.
+- We go from prior to posterior by applying Bayes theorem.
+- **Most important point**: Uses probability to quantify uncertainty.
+
+
+---
+
+## Why should you use Bayesian inference?
+
+- More fun
+- Much easier to understand
+- Corresponds to our intuitive understanding
+- More principled apporach
+- Generally much more flexible
+- Better for fitting complex models (including multilevel models)
+- Allows us to quantify evidence
+
+
+---
+
+## Why shouldn't you use Bayesian inference?
+
+- Everyone else is using frequentist methods
+- Frequentist methods have fancy names for everything (i.e. established off-the-shelf methods)
+- Bayesian inference is computationally expensive (as you will soon discover)
+- Hypothesis testing is difficult (but the same applies to NHST)

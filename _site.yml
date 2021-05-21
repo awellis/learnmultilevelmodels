@@ -44,19 +44,24 @@ navbar:
   right:
     - text: "Slides"
       menu:
+        - text: "General introduction"
+          href: slides/01-basic-intro.html
         - text: "Introduction to Bayesian Inference"
-          href: slides/01-intro-slides.html
+          href: slides/01-intro-bayes-slides.html
+        - text: "Linear models using brms"
+          href: slides/01-linear-models-slides.html
+        - text: "Hierarchical models using brms"
+          href: slides/01-hierarchical-models-slides.html
+
+    - text: "Documents"
+      menu:
+        - text: "A Principled Bayesian Workflow"
+          href: bayesian-workflow.html
 
     - text: "Assignments"
       menu:
         - text: "Exercise 1"
           href: exercise-1.html
-
-
-    # - text: "Documents"
-    #   menu:
-    #     - text: "About"
-    #       href: about.html
 
     - icon: fab fa-github
       href: https://github.com/awellis/learnmultilevelmodels
