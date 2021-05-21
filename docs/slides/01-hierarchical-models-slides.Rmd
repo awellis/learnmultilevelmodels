@@ -66,7 +66,7 @@ class: middle
 
 ## Another IQ Example
 
-This time we have 3 people, and 3 measurements from each.
+This time we have 3 subjects, and 3 measurements from each subject.
 
 .footnote[
 Lee, Michael D., and Eric-Jan Wagenmakers. Bayesian Cognitive Modeling: A Practical Course. Cambridge: Cambridge University Press, 2014. https://doi.org/10.1017/CBO9781139087759.
