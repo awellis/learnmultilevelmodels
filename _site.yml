@@ -35,13 +35,13 @@ navbar:
         - text: "Topics"
           href: topics.html
 
-
-    # - text: "Solutions"
-    #   menu:
-    #     - text: "Übung 1"
-    #       href: exercise-1.html
-
   right:
+  
+    - text: "Assignments"
+      menu:
+        - text: "Exercise 1"
+          href: exercise-1.html
+
     - text: "Slides"
       menu:
         - text: "General introduction"
@@ -53,15 +53,10 @@ navbar:
         - text: "Hierarchical models using brms"
           href: slides/01-hierarchical-models-slides.html
 
-    - text: "Documents"
-      menu:
-        - text: "A Principled Bayesian Workflow"
-          href: bayesian-workflow.html
-
-    - text: "Assignments"
-      menu:
-        - text: "Exercise 1"
-          href: exercise-1.html
+    # - text: "Documents"
+    #   menu:
+    #     - text: "A Principled Bayesian Workflow"
+    #       href: bayesian-workflow.html
 
     - icon: fab fa-github
       href: https://github.com/awellis/learnmultilevelmodels

@@ -639,6 +639,7 @@ $$\epsilon \sim N(0, \sigma^2)$$
 ### Probabilistic notation
 
 
+
 $$y_{ij} \sim N(\mu, \sigma^2)$$
 $$\mu_{ij} = \alpha + \beta x_{ij}$$
 

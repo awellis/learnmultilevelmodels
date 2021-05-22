@@ -1,5 +1,27 @@
 [
   {
+    "path": "posts/2021-05-22-principled-workflow/",
+    "title": "A Principled Bayesian Workflow",
+    "description": "Steps in Bayesian Data Analysis",
+    "author": [
+      {
+        "name": "Andrew Ellis",
+        "url": "https://github.com/awellis"
+      }
+    ],
+    "date": "2021-05-22",
+    "categories": [
+      "wokflow",
+      "data analysis"
+    ],
+    "contents": "\nThe following figure illustrates the steps that are ideally involved in data analysis. Whereas traditional approaches often combine inference and hypothesis testing, and consist of applying off-the-shelf methods, data analysis involves many more steps.\n\n\n\nStarting at the beginning, we gather all the knowledge we habe about our data analysis problem. This includes deciding which data to collect, which hypotheses to formulate, quantifying our prior knowledge about our parameters.\nFrom this we formulate a generative model, which is a joint probability model of the data and all parameters.\nOnce we have this, we can perform prior predictve checks. This will inform us about the data our model expects to see, and can tell if our models make sense. If the model makes nonsensical predictions, it might have to be revised.\nWe can can then simulate data from our model using a set of known parameters, and use these data in order to recover the parameters. This is an important step when using complex models, as this will tell us whether our model can recover parameters. If our model fails to do so, it needs revising.\nOnce we have gathered data, we can fit our model to the data by applying Bayes theorem. This will gives a joint posterior distribution of all the parameters.\nUsing posterior predictive checks, we can investigate whether our model can capture patterns n the data. This is an important step in deciding wtether a model is mis-specified.\nAt this point, we may decide to revise our model, thus completing the loop.\nIf we are happy that the model captures all relevant aspects of the data, we can use/interpret the posterior estimates, or we can perform model comparison.\nWe can compare several candidate models using posterior predictive checks or approximate out-of -sample predictive accuracy.\nHypothesis testing is a form of model comparison. Bayes factors can quantify relative evidence for one model over another.\n\n\n\n",
+    "preview": "posts/2021-05-22-principled-workflow/../../images/principled-bayesian-workflow.png",
+    "last_modified": "2021-05-22T23:54:58+02:00",
+    "input_file": {},
+    "preview_width": 2104,
+    "preview_height": 1526
+  },
+  {
     "path": "posts/2021-05-21-zoom/",
     "title": "Zoom links",
     "description": "Course dates and Zoom links.",

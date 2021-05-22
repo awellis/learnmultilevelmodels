@@ -12,7 +12,18 @@
       <link>https://awellis.github.io/learnmultilevelmodels</link>
     </image>
     <generator>Distill</generator>
-    <lastBuildDate>Fri, 21 May 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 22 May 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>A Principled Bayesian Workflow</title>
+      <dc:creator>Andrew Ellis</dc:creator>
+      <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-22-principled-workflow</link>
+      <description>Steps in Bayesian Data Analysis</description>
+      <category>wokflow</category>
+      <category>data analysis</category>
+      <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-22-principled-workflow</guid>
+      <pubDate>Sat, 22 May 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://awellis.github.io/learnmultilevelmodels/posts/2021-05-22-principled-workflow/../../images/principled-bayesian-workflow.png" medium="image" type="image/png" width="2104" height="1526"/>
+    </item>
     <item>
       <title>Zoom links</title>
       <dc:creator>Andrew Ellis</dc:creator>
