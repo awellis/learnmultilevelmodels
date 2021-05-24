@@ -12,7 +12,18 @@
       <link>https://awellis.github.io/learnmultilevelmodels</link>
     </image>
     <generator>Distill</generator>
-    <lastBuildDate>Sat, 22 May 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 23 May 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>An Introduction to brms</title>
+      <dc:creator>Andrew Ellis</dc:creator>
+      <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-24-walkthrough-brms</link>
+      <description>Using `brms` for parameter estimation: A walkthrough</description>
+      <category>wokflow</category>
+      <category>data analysis</category>
+      <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-24-walkthrough-brms</guid>
+      <pubDate>Sun, 23 May 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://awellis.github.io/learnmultilevelmodels/posts/2021-05-24-walkthrough-brms/walkthrough-brms_files/figure-html5/unnamed-chunk-13-1.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
     <item>
       <title>A Principled Bayesian Workflow</title>
       <dc:creator>Andrew Ellis</dc:creator>
