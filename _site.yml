@@ -39,8 +39,8 @@ navbar:
   
     - text: "Assignments"
       menu:
-        - text: "Exercise 1"
-          href: exercise-1.html
+        - text: "Assignment 1"
+          href: assignment-1.html
 
     - text: "Slides"
       menu:
