@@ -4,7 +4,7 @@ session: 1
 subtitle: "Part 3 <br/> Hierarchical models"
 author: "Andrew Ellis"
 # institute: "Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern"
-institute: "Methodenkurs Neurowissenschaft im Computerlab"
+institute: "Bayesian multilevel modelling workshop 2021"
 date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
@@ -674,7 +674,7 @@ head(mm)
 
 ---
 
-## Erklärung
+## Explanation
 
 - We are predicting the mean of the outcome variable `score` with a linear model. 
 
