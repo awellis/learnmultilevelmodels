@@ -49,8 +49,8 @@ div.exercise {
   background-position: 15px center;
   min-height: 40px;
   color: #000000;
-  background-color: #bb2b4f;
-  border: dashed 5px #ffffff;
+  background-color: #ffffff;
+  border: dashed 5px #bb2b4f;
 }
 
 div.note {
@@ -81,19 +81,19 @@ div.apply {
 }
 
 div.puzzle {
-  background-image: url("./images/fontawesome/solid/puzzle-piece.svg");
+  background-image: url("../images/fontawesome/solid/puzzle-piece.svg");
 }
 
 div.fyi {
- background-image: url("./images/fontawesome/solid/info-circle.svg");
+ background-image: url("../images/fontawesome/solid/info-circle.svg");
 }
 
 div.exercise {
-  background-image: url("./images/fontawesome/solid/code.svg");
+  background-image: url("../images/fontawesome/solid/code.svg");
 }
 
 div.note {
-  background-image: url("./images/fontawesome/solid/comment.svg");
+  background-image: url("../images/fontawesome/solid/comment.svg");
 }
 
 div.example {

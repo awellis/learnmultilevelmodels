@@ -1,0 +1,109 @@
+---
+title: "Assignment 1"
+description: | 
+  Estimating means and standard deviations
+date: 05-24-2021
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/asssignment-1.html
+bibliography: ./bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+      self_contained: false
+---
+
+
+
+Before completing this assignment, please read the `brms` [walkthrough](https://awellis.github.io/learnmultilevelmodels/posts/2021-05-24-walkthrough-brms/). 
+
+We fitted a gaussian model to some simple generated data. However, in the model we assumed that both groups had the same standard deviations. This assumption is not really necessary, however, as we can easily fit a model in which we allow both mean and standard deviation to vary between groups.
+
+```{r}
+library(tidyverse)
+library(brms)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+
+## Generate data
+
+```{r}
+N <- 10
+
+mean_a <- 20.0
+sigma_a <- 2.0
+
+mean_b <- 16.0
+sigma_b <- 1.5
+
+set.seed(12)
+d <- tibble(A = rnorm(N, mean_a, sigma_a),
+            B = rnorm(N, mean_b, sigma_b))
+d <- d |>
+  pivot_longer(everything(), names_to = "group",
+                values_to = "score") |> 
+  mutate(group = as_factor(group)) |> 
+  arrange(group)
+```
+
+
+
+brms allows us easily fit bith the main parameter (in this case the mean), as well as further distributional parameters. We simply need to wrap the formula in the `bf()` function. Therefore, instead of the formula `score ~ group` we can use this `bf(score ~ group, sigma ~ group)`.
+
+```{r eval=FALSE, include=TRUE}
+score ~ group
+```
+
+Can be replaced with:
+
+```{r eval=FALSE, include=TRUE}
+bf(score ~ group, sigma ~ group)
+```
+
+
+:::exercise
+Perform the steps described in the walkthrough, but this time for the model that allows both $\mu$ and $\sigma$ to vary. Does this model perform well? Are you able to recover the true parameter values?
+
+**NOTE:** The standard deviation must be positive; therefore we are predicting `log(sigma)` with our linear predictor. To recover the parameter on the original scale, you need to use the inverse function, which is the exponential function `exp()`.
+
+Try it out; if you get stuck, you can always ask questions on [Zulip](https://learnmultilevelmodels.zulipchat.com).
+:::
+
+
+```{r eval=FALSE, include=FALSE}
+get_prior(bf(score ~ group, sigma ~ group),
+          data = d)
+```
+
+
+```{r eval=FALSE, include=FALSE}
+m3 <- brm(bf(score ~ group, sigma ~ group),
+          prior = prior(normal(0, 4), class = b),
+          data = d, 
+          file = "models/m3")
+```
+
+```{r eval=FALSE, include=FALSE}
+conditional_effects(m3)
+```
+
+```{r eval=FALSE, include=FALSE}
+pp_check(m3)
+```
+
+```{r eval=FALSE, include=FALSE}
+pp_check(m3, type = "dens_overlay_grouped", group = "group")
+```
+
