@@ -1626,7 +1626,7 @@ B
 <h1 id="probabilistic-model">Probabilistic model</h1>
 <p>We assume the data are conditionally normally distributed</p>
 <p><span class="math display">\[ y_i \sim \mathcal{N}(\mu_{[j]}, \sigma_{[j]}) \]</span> <span class="math display">\[ \text{for J = 1, 2} \]</span></p>
-<p>We will initially assume that the two groups have equal standard deviations (SD), so that we need only estimate one common SD parameter. We therefore need to estimate three parameters in total, <span class="math inline">\(\mu_a, \mu_b, \sigma\)</span> (you can allow both mean and standard deviation to vary in <a href="https://awellis.github.io/learnmultilevelmodels/assignment-1.html">assignment</a>).</p>
+<p>We will initially assume that the two groups have equal standard deviations (SD), so that we need only estimate one common SD parameter. We therefore need to estimate three parameters in total, <span class="math inline">\(\mu_a, \mu_b, \sigma\)</span> (you can allow both mean and standard deviation to vary in <a href="https://awellis.github.io/learnmultilevelmodels/assignment-1.html">assignment 1</a>).</p>
 <h2 id="linear-model">Linear model</h2>
 <p>Using a linear model, we have several possibilities for choosing our contrast coding. We will use treatment coding, in which we choose one of the groups as reference category. This will be represented by the intercept. The other group will not be estimated directly. Instead, the second parameter will represent the difference between this group and the reference category.</p>
 <p>We can check the levels of the grouping variable. The first levels will be chose as the reference group.</p>
@@ -1687,7 +1687,7 @@ For parameter estimation, the difference between the two approaches will affect 
       default
       default</code></pre>
 </div>
-<p>The output doesn’t like very appealing, so we can show just the first four columns:</p>
+<p>The output doesn’t look very appealing, so we can show just the first four columns:</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/brms/man/get_prior.html'>get_prior</a></span><span class='op'>(</span><span class='va'>score</span> <span class='op'>~</span> <span class='va'>group</span>, data <span class='op'>=</span> <span class='va'>d</span><span class='op'>)</span> |&gt; 

@@ -103,7 +103,7 @@ We assume the data are conditionally normally distributed
 $$ y_i \sim \mathcal{N}(\mu_{[j]}, \sigma_{[j]}) $$
 $$ \text{for J = 1, 2} $$
 
-We will initially assume that the two groups have equal standard deviations (SD), so that we need only estimate one common SD parameter. We therefore need to estimate three parameters in total, $\mu_a, \mu_b, \sigma$ (you can allow both mean and standard deviation to vary in [assignment](https://awellis.github.io/learnmultilevelmodels/assignment-1.html)).
+We will initially assume that the two groups have equal standard deviations (SD), so that we need only estimate one common SD parameter. We therefore need to estimate three parameters in total, $\mu_a, \mu_b, \sigma$ (you can allow both mean and standard deviation to vary in [assignment 1](https://awellis.github.io/learnmultilevelmodels/assignment-1.html)).
                     
 
 ```{r eval=FALSE, include=FALSE}
@@ -157,7 +157,7 @@ We can check which for which parameters we need to set priors, and what the defa
 get_prior(score ~ group, data = d)
 ```
 
-The output doesn't like very appealing, so we can show just the first four columns:
+The output doesn't look very appealing, so we can show just the first four columns:
 
 
 ```{r}
