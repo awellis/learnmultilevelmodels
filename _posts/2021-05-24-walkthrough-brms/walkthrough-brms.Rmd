@@ -23,6 +23,7 @@ output:
       toc_depth: 2
       code_folding: false
       self_contained: false
+      css: ../../css/style.css
 ---
 
 
