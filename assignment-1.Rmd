@@ -60,7 +60,7 @@ d <- d |>
 
 
 
-brms allows us easily fit bith the main parameter (in this case the mean), as well as further distributional parameters. We simply need to wrap the formula in the `bf()` function. Therefore, instead of the formula `score ~ group` we can use this `bf(score ~ group, sigma ~ group)`.
+brms allows us easily fit both the main parameter (in this case the mean), as well as further distributional parameters. We simply need to wrap the formula in the `bf()` function. Therefore, instead of the formula `score ~ group` we can use this `bf(score ~ group, sigma ~ group)`.
 
 ```{r eval=FALSE, include=TRUE}
 score ~ group
