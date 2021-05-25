@@ -103,7 +103,7 @@ We assume the data are conditionally normally distributed
 $$ y_i \sim \mathcal{N}(\mu_{[j]}, \sigma_{[j]}) $$
 $$ \text{for J = 1, 2} $$
 
-We will initially assume that the two groups have equal standard deviations (SD), so that we need only estimate one common SD parameter. We therefore need to estimate three parameters in total, $\mu_a, \mu_b, \sigma$.
+We will initially assume that the two groups have equal standard deviations (SD), so that we need only estimate one common SD parameter. We therefore need to estimate three parameters in total, $\mu_a, \mu_b, \sigma$ (you can allow both mean and standard deviation to vary in [assignment](https://awellis.github.io/learnmultilevelmodels/assignment-1.html)).
                     
 
 ```{r eval=FALSE, include=FALSE}
@@ -124,7 +124,7 @@ levels(d$group)
 Another possibility is to omit the intercept, and then just estimate both group means independently.
 
 <aside>
-For parameter estimation, the difference between the two approaches will affect the choice of priors, but not the conclusions we can draw. ONce we have the posterior distributions, we can compute any quantity of interest directly from the posterior samples. The choice of contrast coding will become important later, when we look at model comparisons.
+For parameter estimation, the difference between the two approaches will affect the choice of priors, but not the conclusions we can draw. Once we have the posterior distributions, we can compute any quantity of interest directly from the posterior samples. The choice of contrast coding will become important later, when we look at model comparisons.
 </aside>
 
 For the first approach, we use the R formula

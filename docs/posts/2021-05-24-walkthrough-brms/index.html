@@ -2778,7 +2778,7 @@ B
 <h1 id="probabilistic-model">Probabilistic model</h1>
 <p>We assume the data are conditionally normally distributed</p>
 <p><span class="math display">\[ y_i \sim \mathcal{N}(\mu_{[j]}, \sigma_{[j]}) \]</span> <span class="math display">\[ \text{for J = 1, 2} \]</span></p>
-<p>We will initially assume that the two groups have equal standard deviations (SD), so that we need only estimate one common SD parameter. We therefore need to estimate three parameters in total, <span class="math inline">\(\mu_a, \mu_b, \sigma\)</span>.</p>
+<p>We will initially assume that the two groups have equal standard deviations (SD), so that we need only estimate one common SD parameter. We therefore need to estimate three parameters in total, <span class="math inline">\(\mu_a, \mu_b, \sigma\)</span> (you can allow both mean and standard deviation to vary in <a href="https://awellis.github.io/learnmultilevelmodels/assignment-1.html">assignment</a>).</p>
 <h2 id="linear-model">Linear model</h2>
 <p>Using a linear model, we have several possibilities for choosing our contrast coding. We will use treatment coding, in which we choose one of the groups as reference category. This will be represented by the intercept. The other group will not be estimated directly. Instead, the second parameter will represent the difference between this group and the reference category.</p>
 <p>We can check the levels of the grouping variable. The first levels will be chose as the reference group.</p>
@@ -2791,7 +2791,7 @@ B
 </div>
 <p>Another possibility is to omit the intercept, and then just estimate both group means independently.</p>
 <aside>
-For parameter estimation, the difference between the two approaches will affect the choice of priors, but not the conclusions we can draw. ONce we have the posterior distributions, we can compute any quantity of interest directly from the posterior samples. The choice of contrast coding will become important later, when we look at model comparisons.
+For parameter estimation, the difference between the two approaches will affect the choice of priors, but not the conclusions we can draw. Once we have the posterior distributions, we can compute any quantity of interest directly from the posterior samples. The choice of contrast coding will become important later, when we look at model comparisons.
 </aside>
 <p>For the first approach, we use the R formula</p>
 <div class="layout-chunk" data-layout="l-body">
