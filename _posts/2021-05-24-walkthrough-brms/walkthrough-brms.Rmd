@@ -194,7 +194,7 @@ One important difference between the two is that for the second parameterization
 
 We will ignore McElreath's advice for now, and estimate mean of group B as `Intercept + groupB`. 
 
-Since we already know from the summary above that the difference between groups cannot tbe very large, we set a `normal(0, 10)` on the group difference. This expresses the belief that we are about 95% certain that the parameter will lie between $-8$ and $8$
+Since we already know from the summary above that the difference between groups cannot tbe very large, we set a `normal(0, 4)` on the group difference. This expresses the belief that we are about 95% certain that the parameter will lie between $-8$ and $8$
 
 We can use the `brms` function `prior()` to do this.
 
