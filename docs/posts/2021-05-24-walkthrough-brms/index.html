@@ -3005,8 +3005,8 @@ To be precise, <code>conditional_effects()</code> plots the expected means of th
 </div>
 <p><img src="walkthrough-brms_files/figure-html5/unnamed-chunk-21-1.png" width="624" /></p>
 </div>
-<p>The plots for each parameter show the 4 chains (in different shades of blue). They should not be easily visually distinguishable from each other, and should visually resemble a “fat hairy caterpillar.”</p>
-<p>Another method for checking convergence of the <code>Rhat</code> value in the output. There is one for each estimated parameter, and these values should be <span class="math inline">\(1.0\)</span>, or <span class="math inline">\(&gt; 1.05\)</span>. The <code>Rhat</code> statistic measures the ratio of the average variance of samples within each chain to the variance of the pooled samples across chains. If these values are <span class="math inline">\(1.0\)</span>, this means that the chains have mixed well and are sampling from the same posterior.</p>
+<p>The plots for each parameter show the 4 chains (in different shades of blue). They should not be easily distinguishable from each other, and should resemble a “fat hairy caterpillar.”</p>
+<p>Apart from visual inspection, we can check for convergence of the chains by looking at the <code>Rhat</code> values in the output. There is one for each estimated parameter, and these values should be approximately <span class="math inline">\(1.0\)</span>, and <span class="math inline">\(&gt; 1.05\)</span>. The <code>Rhat</code> statistic measures the ratio of the average variance of samples within each chain to the variance of the pooled samples across chains. If these values are <span class="math inline">\(1.0\)</span>, this means that the chains have mixed well and are sampling from the same posterior.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>m1</span><span class='op'>)</span>

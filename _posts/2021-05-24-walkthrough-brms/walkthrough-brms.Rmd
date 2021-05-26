@@ -317,10 +317,10 @@ Another way of getting these is with the function `mcmc_trace()` from the `bayes
 library(bayesplot)
 mcmc_trace(m1)
 ```
-The plots for each parameter show the 4 chains (in different shades of blue). They should not be easily visually distinguishable from each other, and should visually resemble a "fat hairy caterpillar".
+The plots for each parameter show the 4 chains (in different shades of blue). They should not be easily distinguishable from each other, and should resemble a "fat hairy caterpillar".
 
 
-Another method for checking convergence of the `Rhat` value in the output. There is one for each estimated parameter, and these values should be $1.0$, or $> 1.05$.  The `Rhat` statistic measures the ratio of the average variance of samples within each chain to the variance of the pooled samples across chains. If these values are $1.0$, this means that the chains have mixed well and are sampling from the same posterior.
+Apart from visual inspection, we can check for convergence of the chains by looking at the `Rhat` values in the output. There is one for each estimated parameter, and these values should be approximately $1.0$, and $> 1.05$.  The `Rhat` statistic measures the ratio of the average variance of samples within each chain to the variance of the pooled samples across chains. If these values are $1.0$, this means that the chains have mixed well and are sampling from the same posterior.
 
 ```{r}
 summary(m1)
