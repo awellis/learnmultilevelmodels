@@ -115,7 +115,7 @@ $$
 \operatorname{response} = \beta_{\operatorname{A}}(\operatorname{condition}_{\operatorname{A}}) + \beta_{\operatorname{B}}(\operatorname{condition}_{\operatorname{B}}) + \beta_{\operatorname{C}}(\operatorname{condition}_{\operatorname{C}}) + \epsilon
 $$
 
-This states that the expected value of the response variable is either $\beta_{\operatorname{A}$, $\beta_{\operatorname{B}$ or $\beta_{\operatorname{C}$, since these are indicator variables.
+This states that the expected value of the response variable is either $\beta_{\operatorname{A}}$, $\beta_{\operatorname{B}}$ or $\beta_{\operatorname{C}}$, since these are indicator variables.
 
 
 We can inspect the default priors.
