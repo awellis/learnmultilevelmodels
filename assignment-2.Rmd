@@ -37,7 +37,7 @@ theme_set(theme_grey(base_size = 14) +
 
 Use the `simulate_treament()` function to generate data. Vary the parameter settings, and then attempt to recover the known parameters using `brm()`. 
 
-## Exercise 3
+## Exercise 2
 
 Use the `simulate_treament()` function to generate data. Give your data to a colleague and  they will give you theirs in return. Try to recover the (unknown to you) parameters using `brm()`. 
 

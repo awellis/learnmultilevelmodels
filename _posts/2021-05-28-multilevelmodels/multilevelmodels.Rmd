@@ -445,7 +445,7 @@ params |>
 
 
 ```{r code_folding = TRUE}
-simulate_treament <- function(a = 3.5,
+simulate_treatment <- function(a = 3.5,
                               b = -1,
                               sigma_a = 1,
                               sigma_b = 0.8,
@@ -535,7 +535,7 @@ plot_linpred <- function(d, violin = FALSE) {
 
 ```{r}
 set.seed(52)
-d1 <- simulate_treament(n_subjects = 5)
+d1 <- simulate_treatment(n_subjects = 5)
 ```
 
 ```{r}
@@ -549,7 +549,7 @@ plot_linpred(d1, violin = T)
 
 ```{r}
 set.seed(52)
-d2 <- simulate_treament(n_subjects = 5, 
+d2 <- simulate_treatment(n_subjects = 5, 
                         sigma_a = 1.2, 
                         sigma_b = 0.2, 
                         rho = -0.7)
@@ -559,7 +559,7 @@ plot_linpred(d2, violin = F)
 
 
 ```{r}
-d <- simulate_treament(n_subjects = 10, n_trials = 50)
+d <- simulate_treatment(n_subjects = 10, n_trials = 50)
 plot_linpred(d, violin = F)
 ```
 
