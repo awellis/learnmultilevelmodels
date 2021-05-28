@@ -124,7 +124,9 @@ We can inspect the default priors.
 get_prior(formula1, data = d) |> 
   as_tibble() |> select(1:4)
 ```
+
 The priors on the regression coefficients are flat. This should be avoided, so we'll use normal distributions centred at 1, which is just the overall mean.
+
 
 ```{r}
 priors1 <- prior(normal(1, 1), class = b)
@@ -218,6 +220,7 @@ In `brms`, these are called group-level effects, as they are varying effects for
 
 
 The formula states that we are predicting `repsonse` as an average effect, with varying effects for each subject. 
+
 ```{r}
 formula2 <- response ~ 1 + (1 | subject)
 ```
@@ -276,7 +279,7 @@ p_sd <- tibble(x = seq(0, 15, by = 0.01),
 p_intercept + p_sd
 ```
 
-Using the default priors is not a good idea at all here; the priors re too wide. This means that the sampling algorithm will be trying to explore parts of the parameter space where the likelihood is very small. This is very inefficient, and Stan gives us a warning if we try to run this model.
+Using the default priors is not a good idea at all here; the priors are too wide. This means that the sampling algorithm will be trying to explore parts of the parameter space where the likelihood is very small. This is very inefficient, and Stan gives us a warning if we try to run this model.
 
 ```{r}
 m2 <- brm(formula2,
@@ -366,11 +369,11 @@ posts_mean |>
   stat_halfeye() 
 ```
 
-THe same is true of the standard deviation of the varying intercepts--- in model 3, we have a mean of $1.10$ with a 95% of $[0.46, 2.44]$, where in model 2 we have 
+The same is true of the standard deviation of the varying intercepts--- in model 3, we have a mean of $1.10$ with a 95% of $[0.46, 2.44]$, where in model 2 we have 
 a mean of $1.42$ and a 95% of $[0.47, 3.64]$.
 
 
-### varying effects
+### Varying effects
 
 We are not just interested in the population-level effect; we want the subject effects too.
 
