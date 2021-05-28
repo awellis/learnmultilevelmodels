@@ -565,9 +565,9 @@ plot_linpred(d, violin = F)
 
 
 \begin{align*}
-\text{wait}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
-\mu_i         & = \alpha_{\text{cafe}_i} + \beta_{\text{cafe}_i} \text{afternoon}_i \\
-\begin{bmatrix} \alpha_\text{cafe} \\ \beta_\text{cafe} \end{bmatrix} & \sim \text{MVNormal} \left (\begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \mathbf{S}  \right ) \\
+\text{response}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i         & = \alpha_{\text{subject}_i} + \beta_{\text{subject}_i} \text{treatment}_i \\
+\begin{bmatrix} \alpha_\text{subject} \\ \beta_\text{cafe} \end{bmatrix} & \sim \text{MVNormal} \left (\begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \mathbf{S}  \right ) \\
 \mathbf S     & = \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \\
 \alpha        & \sim \operatorname{Normal}(0, 10) \\
 \beta         & \sim \operatorname{Normal}(0, 10) \\
@@ -681,3 +681,9 @@ d %>%
   geom_point() +
   scale_color_brewer()
 ```
+
+
+```{r}
+conditional_effects(fit1, re_formula = NA)
+```
+
