@@ -97,11 +97,11 @@ div.note {
 }
 
 div.example {
-  background-image: url("./images/fontawesome/solid/hand-point-right.svg");
+  background-image: url("../images/fontawesome/solid/hand-point-right.svg");
 }
 
 div.apply {
-  background-image: url("./images/fontawesome/solid/wrench.svg");
+  background-image: url("../images/fontawesome/solid/wrench.svg");
 }
 
 

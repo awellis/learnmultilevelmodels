@@ -1,0 +1,599 @@
+---
+title: "Multilevel models"
+description: | 
+  Parameter estimation in clustered data
+date: 05-27-2021
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/multilevel-models.html
+bibliography: ./bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+:::note
+I am using the native `pipe` operator, which is new to R 4.10. This pipe operator is written as a `|` followed by a `>`. In this document, the operator is printed as `|>`, due to the fact that I am using font ligatures. If the pipe doesn't work for you, simply replace it with the older pipe `%>%`.
+:::
+
+```{r}
+library(tidyverse)
+library(brms)
+library(tidybayes)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+
+```{r}
+set.seed(5)
+
+n_obs <- 10
+n_conditions <-  3
+condition_means <- c(0, 1, 2)
+sigma <- 0.5
+
+d <- tibble(condition = rep(LETTERS[1:n_conditions], n_obs),
+            response = rnorm(n_obs * n_conditions, condition_means, sigma)) |> 
+  arrange(condition)
+```
+
+
+```{r}
+p1 <- d |> 
+  ggplot(aes(response, condition, color = condition)) +
+  geom_point( size = 2) +
+  scale_color_brewer(type = "qual")
+
+p1
+```
+
+```{r}
+condition_means <- d |> 
+  group_by(condition) |> 
+  summarise(mean = mean(response),
+            sd = sd(response))
+```
+
+
+```{r}
+p1 +
+  geom_point(aes(mean, condition, color = condition), 
+             data = condition_means, 
+             size = 6)
+```
+
+
+
+```{r}
+formula1 <- response ~ 0 + condition
+```
+
+
+```{r eval=FALSE, include=FALSE}
+library(equatiomatic)
+lm1 <- lm(formula1, data = d)
+eq1 <- extract_eq(lm1)
+```
+
+$$
+\operatorname{response} = \beta_{\operatorname{A}}(\operatorname{condition}_{\operatorname{A}}) + \beta_{\operatorname{B}}(\operatorname{condition}_{\operatorname{B}}) + \beta_{\operatorname{C}}(\operatorname{condition}_{\operatorname{C}}) + \epsilon
+$$
+
+
+```{r}
+get_prior(formula1, data = d) |> 
+  as_tibble() |> select(1:4)
+```
+
+
+```{r}
+priors1 <- prior(normal(1, 1), class = b)
+
+tibble(x = seq(-3, 5, by = 0.01),
+       y = dnorm(x, 1, 1)) |> 
+  ggplot(aes(x, y)) + geom_line(size = 2) +
+  geom_vline(xintercept = 1, linetype = 2) +
+  ylab("") + xlab("") +
+  ggtitle("Prior on means")
+
+```
+
+
+
+```{r}
+m1 <- brm(formul, 
+          prior = priors1,
+          data = d,
+          file = "models/02-m1")
+```
+
+
+
+```{r}
+summary(m1)
+```
+
+```{r}
+mcmc_plot(m1, type = "areas")
+```
+
+```{r}
+fixef(m1)
+```
+
+```{r}
+m1_pop <- fixef(m1, summary = FALSE)
+```
+
+```{r}
+m1_pop |> 
+  as_tibble() |> 
+  pivot_longer(everything(),
+               names_to = "condition",
+               values_to = "mean") |> 
+  group_by(condition) |> 
+  summarise(mean = mean(mean))
+```
+
+```{r}
+conditional_effects(m1)
+```
+
+
+
+
+## Hierarchical model
+
+```{r}
+condition_means
+
+standard_deviation <- function(x) {
+    sqrt(sum((x - mean(x))^2) / (length(x)))
+}
+
+condition_means <- d |> 
+  group_by(condition) |> 
+  summarise(mean = mean(response),
+            sd = sd(response))
+
+condition_means |> 
+  summarize(mu = mean(mean),
+            sd = sd(mean))
+```
+
+
+```{r}
+formula2 <- response ~ 1 + (1 | condition)
+```
+
+
+```{r eval=FALSE, include=FALSE}
+lm2 <- lme4::lmer(formula2, data = d)
+eq2 <- extract_eq(lm2)
+```
+
+
+$$
+\begin{aligned}
+  \operatorname{response}_{i}  &\sim N \left(\alpha_{j[i]}, \sigma^2 \right) \\
+    \alpha_{j}  &\sim N \left(\mu_{\alpha_{j}}, \sigma^2_{\alpha_{j}} \right)
+    \text{, for condition j = 1,} \dots \text{,J}
+\end{aligned}
+$$
+
+
+```{r}
+get_prior(formula2, data = d) |> 
+  as_tibble() |> select(1:4)
+```
+
+```{r}
+tibble(x = seq(0, 15, by = 0.01),
+       Intercept = dstudent_t(x, 3, 0.9, 2.5),
+       sd = dstudent_t(x, 3, 0, 2.5)) |> 
+  pivot_longer(c(Intercept, sd), names_to = "prior", values_to = "y") |> 
+  ggplot(aes(x, y, color = prior)) + geom_line(size = 2) +
+  ylab("") + xlab("") +
+  scale_color_brewer(type = "qual") +
+  ggtitle("Intercept")
+```
+
+
+```{r}
+m2 <- brm(formula2,
+          data = d,
+          control = list(adapt_delta = 0.9),
+          file = "models/02-m2")
+```
+
+```{r}
+summary(m2)
+```
+
+```{r}
+mcmc_plot(m2, type = "areas")
+```
+
+```{r}
+priors3 <- prior(normal(1, 1), class = Intercept) +
+  prior(student_t(3, 0, 2.5), class = sd)
+
+m3 <- brm(formula2,
+          data = d,
+          prior = priors3,
+          control = list(adapt_delta = 0.9),
+          file = "models/02-m3")
+```
+
+
+```{r}
+summary(m3)
+```
+
+```{r}
+priors4 <- prior(normal(1, 1), class = Intercept) +
+  prior(student_t(3, 0, 2.5), class = sd)
+
+
+tibble(x = seq(0, 15, by = 0.01),
+       weak = dstudent_t(x, 3, 0, 2.5),
+       strong = dstudent_t(x, 3, 0, 1)) |> 
+  pivot_longer(c(weak, strong), names_to = "prior", values_to = "y") |> 
+  ggplot(aes(x, y, color = prior)) + geom_line(size = 2) +
+  ylab("") + xlab("") +
+  scale_color_brewer(type = "qual") +
+  ggtitle("Intercept")
+```
+
+
+```{r}
+m4 <- brm(formula2,
+          data = d,
+          prior = priors4,
+          control = list(adapt_delta = 0.9),
+          file = "models/02-m4")
+```
+
+
+```{r}
+summary(m4)
+```
+
+
+
+
+```{r eval=FALSE, include=FALSE}
+posts <-
+  tibble(name  = str_c("fit", 1:3),
+         prior = str_c("normal(0, ", c(10, 1, 0.1), ")")) |> 
+  mutate(fit = map(name, get)) |> 
+  mutate(post = map(fit, posterior_samples))
+  
+head(posts)
+```
+
+```{r}
+posts <-
+  tibble(name  = str_c("m", 2:4),
+         model = str_c("Model ", 2:4)) |> 
+  mutate(fit = map(name, get)) |> 
+  mutate(post = map(fit, posterior_samples))
+  
+# head(posts)
+
+posts <- posts |> 
+  select(-fit) |> 
+  unnest(post)
+
+posts_mean <- posts |> 
+  pivot_longer(starts_with("b_Intercept"), names_to = "condition",
+               values_to = "value")
+posts_mean |> 
+  ggplot(aes(x = value, y = model)) +
+  stat_halfeye() +
+  facet_wrap(~ condition)
+```
+
+```{r}
+posts_sd <- posts |> 
+  pivot_longer(starts_with("sd_condition__Intercept"), names_to = "condition",
+               values_to = "value")
+posts_sd |> 
+  ggplot(aes(x = value, y = model)) +
+  stat_halfeye() +
+  facet_wrap(~ condition)
+```
+
+
+### varying effects
+
+```{r}
+m4 |> 
+  spread_draws(r_condition[condition])
+```
+
+```{r}
+m4 %>%
+  spread_draws(b_Intercept, r_condition[condition]) |> 
+  median_qi(condition_mean = b_Intercept + r_condition) 
+```
+
+```{r}
+p4_shrinkage <- m4 |> 
+  spread_draws(b_Intercept, r_condition[condition]) |> 
+  median_qi(condition_mean = b_Intercept + r_condition) |> 
+  ggplot(aes(y = condition, x = condition_mean, 
+             color = condition)) +
+  geom_pointinterval(aes(xmin = .lower, xmax = .upper), point_size = 4) +
+  scale_color_brewer(type = "qual")
+p4_shrinkage 
+```
+
+```{r}
+
+p4_shrinkage +
+    geom_point(aes(mean, condition), 
+             data = condition_means, 
+             size = 2, color = "black") +
+  ggtitle("Hierarchical shrinkage")
+```
+
+
+
+
+## Multilevel example
+
+
+```{r}
+simulate_treament <- function(a = 3.5,
+                          b = -1,
+                          sigma_a = 1,
+                          sigma_b = 0.8,
+                          rho = -0.7,
+                          n_subjects = 10,
+                          n_trials = 20,
+                          sigma = 0.5) {
+
+    # Ccombine the terms
+    mu <- c(a, b)
+    cov_ab <- sigma_a * sigma_b * rho
+    SD  <- matrix(c(sigma_a^2, cov_ab,
+                       cov_ab, sigma_b^2), ncol = 2)
+
+   #  sigmas <- c(sigma_a, sigma_b)          # standard deviations
+   #  rho <- matrix(c(1, rho,             # correlation matrix
+   #                 rho, 1), nrow = 2)
+   # 
+   # # now matrix multiply to get covariance matrix
+   # SD <- diag(sigmas) %*% rho %*% diag(sigmas)
+
+    varying_effects <-
+        MASS::mvrnorm(n_subjects, mu, SD) |>
+        # as_tibble(.name_repair = "unique") |>
+        data.frame() |>
+        purrr::set_names("a_j", "b_j")
+
+    d_linpred <-
+        varying_effects |>
+        mutate(subject  = 1:n_subjects) |>
+        expand(nesting(subject, a_j, b_j), post = c(0, 1)) |>
+        mutate(mu = a_j + b_j * post,
+               sigma = sigma) |>
+        mutate(treatment = ifelse(post == 0, "pre", "post"),
+               treatment = factor(treatment, levels = c("pre", "post")))
+
+    d <- d_linpred |>
+        slice(rep(1:n(), each = n_trials)) |>
+        mutate(response = rnorm(n = n(), mean = mu, sd = sigma))
+
+   d
+}
+```
+
+```{r}
+plot_linpred <- function(d, violin = FALSE) {
+  
+  d_linpred <- d |>
+  group_by(subject, treatment) |> distinct(mu, .keep_all = TRUE)
+  
+  p <- d_linpred |>
+    ggplot(aes(x = treatment, y = mu))
+  
+  if (isTRUE(violin)) {
+  p <- p + 
+      geom_violin(aes(x = treatment, y = response,
+                          fill = treatment), 
+                  alpha = 0.5,
+                  data = d) +
+      geom_jitter(aes(x = treatment, y = response,
+                          color = treatment), 
+                  width = 0.1, size = 2,
+                  data = d)
+  }
+  
+  p <- p +
+    geom_line(aes(group = 1), color = "#8B9DAF", size = 1, linetype = 3) +
+    geom_point(aes(fill = treatment), 
+               shape = 21, 
+               colour = "black", 
+               size = 4, 
+               stroke = 2) +
+    scale_fill_brewer(type = "qual") +
+    scale_color_brewer(type = "qual") +
+    coord_cartesian(ylim = c(0, 8)) +
+    ylab("Response") +
+    theme(legend.position = "none",
+          axis.ticks.x    = element_blank()) +
+    facet_wrap(~ subject) +
+  ggtitle("Linear predictor")
+  
+  p
+}
+
+```
+
+
+```{r}
+set.seed(52)
+d1 <- simulate_treament(n_subjects = 5)
+```
+
+```{r}
+plot_linpred(d1)
+```
+
+
+```{r}
+plot_linpred(d1, violin = T)
+```
+
+```{r}
+set.seed(52)
+d2 <- simulate_treament(n_subjects = 5, 
+                        sigma_a = 1.2, 
+                        sigma_b = 0.2, 
+                        rho = -0.7)
+
+plot_linpred(d2, violin = F)
+```
+
+
+```{r}
+d <- simulate_treament(n_subjects = 10, n_trials = 50)
+plot_linpred(d, violin = F)
+```
+
+
+\begin{align*}
+\text{wait}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i         & = \alpha_{\text{cafe}_i} + \beta_{\text{cafe}_i} \text{afternoon}_i \\
+\begin{bmatrix} \alpha_\text{cafe} \\ \beta_\text{cafe} \end{bmatrix} & \sim \text{MVNormal} \left (\begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \mathbf{S}  \right ) \\
+\mathbf S     & = \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \\
+\alpha        & \sim \operatorname{Normal}(0, 10) \\
+\beta         & \sim \operatorname{Normal}(0, 10) \\
+\sigma        & \sim \operatorname{HalfCauchy}(0, 1) \\
+\sigma_\alpha & \sim \operatorname{HalfCauchy}(0, 1) \\
+\sigma_\beta  & \sim \operatorname{HalfCauchy}(0, 1) \\
+\mathbf R     & \sim \operatorname{LKJcorr}(2),
+\end{align*}
+
+
+```{r}
+get_prior(response ~ treatment + (treatment | subject),
+          data = d) |> 
+  as_tibble() |> select(1:4)
+
+```
+
+
+```{r}
+library(rethinking)
+
+n_sim <- 1e5
+
+set.seed(13)
+r_1 <- 
+  rlkjcorr(n_sim, K = 2, eta = 1) %>%
+  as_tibble()
+
+set.seed(13)
+r_2 <- 
+  rlkjcorr(n_sim, K = 2, eta = 2) %>%
+  as_tibble()
+
+set.seed(13)
+r_4 <- 
+  rlkjcorr(n_sim, K = 2, eta = 4) %>%
+  as_tibble()
+```
+
+```{r}
+ggplot(data = r_1, aes(x = V2)) +
+  geom_density(color = "transparent", fill = "#5e81ac", alpha = 2/3) +
+  geom_density(data = r_2,
+               color = "transparent", fill = "#a3be8c", alpha = 2/3) +
+  geom_density(data = r_4,
+               color = "transparent", fill = "#bf616a", alpha = 2/3) +
+  geom_text(data = tibble(x = c(.83, .62, .46),
+                          y = c(.54, .74, 1),
+                          label = c("eta = 1", "eta = 2", "eta = 4")),
+            aes(x = x, y = y, label = label),
+            color = "#A65141", family = "Courier") +
+  scale_y_continuous(NULL, breaks = NULL) +
+  xlab("correlation")
+```
+
+
+```{r}
+
+fit1_prior <- brm(response ~ treatment + (treatment | subject),
+            prior = prior(normal(0, 10), class = b),
+            data = d,
+            sample_prior = "only",
+            file = "models/02-fit1-prior")
+
+fit1 <- brm(response ~ treatment + (treatment | subject),
+            prior = prior(normal(0, 10), class = b),
+            data = d,
+            file = "models/02-fit1")
+```
+
+```{r}
+summary(fit1)
+```
+
+
+```{r}
+mcmc_plot(fit1_prior)
+ ```
+
+```{r}
+mcmc_plot(fit1)
+```
+```{r}
+pp_check(fit1_prior, type = "dens_overlay_grouped", group = "treatment")
+```
+
+```{r}
+pp_check(fit1, type = "dens_overlay_grouped", group = "treatment")
+```
+
+
+```{r}
+grid <- d |> 
+  modelr::data_grid(subject, treatment)
+
+grid
+
+fits <- grid %>%
+  add_fitted_draws(fit1)
+
+preds <- grid %>%
+  add_predicted_draws(fit1)
+
+d %>%
+  ggplot(aes(y = treatment, x = response)) +
+  stat_interval(aes(x = .prediction), data = preds) +
+  stat_pointinterval(aes(x = .value), data = fits, .width = c(.66, .95), 
+                     position = position _nudge(y = -0.3)) +
+  geom_point() +
+  scale_color_brewer()
+```

@@ -12,7 +12,17 @@
       <link>https://awellis.github.io/learnmultilevelmodels</link>
     </image>
     <generator>Distill</generator>
-    <lastBuildDate>Sun, 23 May 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 28 May 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Multilevel models</title>
+      <dc:creator>Andrew Ellis</dc:creator>
+      <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-28-multilevelmodels</link>
+      <description>Parameter estimation in clustered data</description>
+      <category>multilevel models</category>
+      <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-28-multilevelmodels</guid>
+      <pubDate>Fri, 28 May 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://awellis.github.io/learnmultilevelmodels/posts/2021-05-28-multilevelmodels/distill-preview.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
     <item>
       <title>An Introduction to brms</title>
       <dc:creator>Andrew Ellis</dc:creator>

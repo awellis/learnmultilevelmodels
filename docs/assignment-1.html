@@ -2494,11 +2494,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   }
 
   div.example {
-    background-image: url("./images/fontawesome/solid/hand-point-right.svg");
+    background-image: url("../images/fontawesome/solid/hand-point-right.svg");
   }
 
   div.apply {
-    background-image: url("./images/fontawesome/solid/wrench.svg");
+    background-image: url("../images/fontawesome/solid/wrench.svg");
   }
 
 
@@ -2585,6 +2585,7 @@ Assignments
 </button>
 <div class="nav-dropdown-content">
 <a href="assignment-1.html">Assignment 1</a>
+<a href="assignment-2.html">Assignment 2</a>
 </div>
 </div>
 <div class="nav-dropdown">
@@ -2687,7 +2688,83 @@ Slides
 <p><strong>NOTE:</strong> The standard deviation must be positive; therefore we are predicting <code>log(sigma)</code> with our linear predictor. To recover the parameter on the original scale, you need to use the inverse function, which is the exponential function <code>exp()</code>.</p>
 <p>Try it out; if you get stuck, you can always ask questions on <a href="https://learnmultilevelmodels.zulipchat.com">Zulip</a>.</p>
 </div>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/brms/man/get_prior.html'>get_prior</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/pkg/brms/man/brmsformula.html'>bf</a></span><span class='op'>(</span><span class='va'>score</span> <span class='op'>~</span> <span class='va'>group</span>, <span class='va'>sigma</span> <span class='op'>~</span> <span class='va'>group</span><span class='op'>)</span>,
+          data <span class='op'>=</span> <span class='va'>d</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>                   prior     class   coef group resp  dpar nlpar
+                  (flat)         b                              
+                  (flat)         b groupB                       
+ student_t(3, 16.9, 2.5) Intercept                              
+                  (flat)         b                   sigma      
+                  (flat)         b groupB            sigma      
+    student_t(3, 0, 2.5) Intercept                   sigma      
+ bound       source
+            default
+       (vectorized)
+            default
+       (vectorized)
+       (vectorized)
+            default</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>m3</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/brm.html'>brm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/pkg/brms/man/brmsformula.html'>bf</a></span><span class='op'>(</span><span class='va'>score</span> <span class='op'>~</span> <span class='va'>group</span>, <span class='va'>sigma</span> <span class='op'>~</span> <span class='va'>group</span><span class='op'>)</span>,
+          prior <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/set_prior.html'>prior</a></span><span class='op'>(</span><span class='fu'>normal</span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>4</span><span class='op'>)</span>, class <span class='op'>=</span> <span class='va'>b</span><span class='op'>)</span>,
+          data <span class='op'>=</span> <span class='va'>d</span>, 
+          file <span class='op'>=</span> <span class='st'>"models/m3"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/brms/man/conditional_effects.brmsfit.html'>conditional_effects</a></span><span class='op'>(</span><span class='va'>m3</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<p><img src="assignment-1_files/figure-html5/unnamed-chunk-7-1.png" width="624" /></p>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/brms/man/pp_check.brmsfit.html'>pp_check</a></span><span class='op'>(</span><span class='va'>m3</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<p><img src="assignment-1_files/figure-html5/unnamed-chunk-8-1.png" width="624" /></p>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/brms/man/pp_check.brmsfit.html'>pp_check</a></span><span class='op'>(</span><span class='va'>m3</span>, type <span class='op'>=</span> <span class='st'>"dens_overlay_grouped"</span>, group <span class='op'>=</span> <span class='st'>"group"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<p><img src="assignment-1_files/figure-html5/unnamed-chunk-9-1.png" width="624" /></p>
+</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
