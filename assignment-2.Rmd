@@ -1,0 +1,69 @@
+---
+title: "Assignment 2"
+description: | 
+  Parameter estimation in clustered data
+date: 05-28-2021
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/asssignment-2.html
+bibliography: ./bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+      self_contained: false
+---
+
+
+```{r}
+library(tidyverse)
+library(brms)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+
+
+## Exercise 1
+
+Use the `simulate_treament()` function to generate data. Vary the parameter settings, and then attempt to recover the known parameters using `brm()`. 
+
+## Exercise 3
+
+Use the `simulate_treament()` function to generate data. Give your data to a colleague and  they will give you theirs in return. Try to recover the (unknown to you) parameters using `brm()`. 
+
+
+
+## Exercise 3
+ 
+
+Load the dataset `sleepstudy` from the `lme4` package. These are data from a  sleep deprivation study, in which the average reaction time per day (in milliseconds) was recorded.
+
+Have a look at the data, and then try to estimate the effect of `day` on reaction time.
+
+:::note
+It's always a good idea to plot the data before you do anything else.
+:::
+
+```{r}
+library(lme4)
+glimpse(sleepstudy)
+```
+
+
+
+```{r eval=FALSE, include=FALSE}
+fit_sleepstudy <- brm(Reaction ~ Days + (1 + Days|Subject), 
+                       data = sleepstudy)
+summary(fit_sleepstudy)
+```
+

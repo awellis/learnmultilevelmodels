@@ -36,11 +36,13 @@ navbar:
           href: topics.html
 
   right:
-  
+
     - text: "Assignments"
       menu:
         - text: "Assignment 1"
           href: assignment-1.html
+        - text: "Assignment 2"
+          href: assignment-2.html
 
     - text: "Slides"
       menu:

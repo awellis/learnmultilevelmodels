@@ -82,28 +82,28 @@ Try it out; if you get stuck, you can always ask questions on [Zulip](https://le
 :::
 
 
-```{r eval=FALSE, include=FALSE}
+```{r code_folding = TRUE}
 get_prior(bf(score ~ group, sigma ~ group),
           data = d)
 ```
 
 
-```{r eval=FALSE, include=FALSE}
+```{r code_folding = TRUE}
 m3 <- brm(bf(score ~ group, sigma ~ group),
           prior = prior(normal(0, 4), class = b),
           data = d, 
           file = "models/m3")
 ```
 
-```{r eval=FALSE, include=FALSE}
+```{r code_folding = TRUE}
 conditional_effects(m3)
 ```
 
-```{r eval=FALSE, include=FALSE}
+```{r code_folding = TRUE}
 pp_check(m3)
 ```
 
-```{r eval=FALSE, include=FALSE}
+```{r code_folding = TRUE}
 pp_check(m3, type = "dens_overlay_grouped", group = "group")
 ```
 

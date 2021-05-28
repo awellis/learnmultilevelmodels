@@ -4,7 +4,7 @@
     <title>Intro to Bayesian Statistics</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andrew Ellis" />
-    <meta name="date" content="2021-05-21" />
+    <meta name="date" content="2021-05-28" />
     <script src="libs/header-attrs/header-attrs.js"></script>
     <link href="libs/font-awesome/css/all.css" rel="stylesheet" />
     <link href="libs/font-awesome/css/v4-shims.css" rel="stylesheet" />
@@ -41,8 +41,8 @@ class: center, middle, inverse, title-slide
 # Intro to Bayesian Statistics
 ## Part 3 <br/> Hierarchical models
 ### Andrew Ellis
-### Methodenkurs Neurowissenschaft im Computerlab
-### 2021-05-21
+### Bayesian multilevel modelling workshop 2021
+### 2021-05-28
 
 ---
 
@@ -133,9 +133,9 @@ IQwide &lt;- tribble(
 
 
 ```r
-IQdata &lt;- IQwide %&gt;% 
-  pivot_longer(everything(), names_to = "Person", values_to = "IQ") %&gt;% 
-  mutate(Person = as_factor(Person)) %&gt;% 
+IQdata &lt;- IQwide |&gt; 
+  pivot_longer(everything(), names_to = "Person", values_to = "IQ") |&gt; 
+  mutate(Person = as_factor(Person)) |&gt; 
   arrange(Person)
 ```
 ]
@@ -144,8 +144,8 @@ IQdata &lt;- IQwide %&gt;%
 
 ```r
 library(kableExtra)
-IQdata %&gt;% 
-  kbl() %&gt;% 
+IQdata |&gt; 
+  kbl() |&gt; 
   scroll_box(width = "500px", height = "200px")
 ```
 
@@ -210,8 +210,8 @@ IQdata %&gt;%
 ```r
 se &lt;- function(x) sd(x)/sqrt(length(x))
 
-IQdata %&gt;% 
-  group_by(Person) %&gt;% 
+IQdata |&gt; 
+  group_by(Person) |&gt; 
   summarise(mean = mean(IQ),
             sd = sd(IQ),
             se = se(IQ))
@@ -230,7 +230,7 @@ IQdata %&gt;%
 
 
 ```r
-IQdata %&gt;% 
+IQdata |&gt; 
   ggplot(aes(Person, IQ)) +
   geom_point()
 ```
@@ -247,7 +247,7 @@ IQdata %&gt;%
 
 ]
 
-<div class="countdown" id="timer_60a74710" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_60b0500e" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -257,7 +257,7 @@ IQdata %&gt;%
 ## Parameter estimation
 
 
-Our goal is to estimate the 3 latent IQ, and the group mean. We assume that for each person, the measurements are normally distributed around that person's latent IQ. For simplicity, we assume a common standard deviation.
+Our goal is to estimate the 3 latent IQs, and the group mean. We assume that for each person, the measurements are normally distributed around that person's latent IQ. For simplicity, we assume a common standard deviation.
 
 $$ IQ_{i} \sim \mathcal{N}(\mu_j, \sigma^2) $$
 
@@ -270,7 +270,7 @@ We have 3 possibilies:
 
 - __Complete pooling:__ We can pretend that all observations are from the same person.
 
-- __Partial pooling:__ We can take into account that we have 3 observations for each person. These 3 people are similar to each other, i.e. they are samples from a super-population of people. 
+- __Partial pooling:__ We can take into account that we have multiple observations for each person. We can use these to estimate each person's mean, but we assume that these 3 people are similar to each other, i.e. they are samples from a super-population of people. Therefore, information we have from one person can inform other people's estimates.
 
 
 
@@ -284,7 +284,7 @@ $$
 `\begin{aligned}
   \operatorname{IQ}_{i}  &amp;\sim N \left(\alpha_{j}, \sigma^2 \right) \\
     \alpha_{j}  &amp;\sim N \left(\mu_{\alpha}, \sigma^2_{\alpha} \right)
-    \text{, for Person j = 1,} \dots \text{,J}
+    \text{, for person j = 1,} \dots \text{,J}
 \end{aligned}`
 $$ 
 
@@ -531,8 +531,8 @@ get_variables(m_part_pool)
 ```
 
 ```r
-person_effects &lt;- m_part_pool %&gt;%
-  spread_draws(b_Intercept, r_Person[Person, Intercept]) %&gt;%
+person_effects &lt;- m_part_pool |&gt;
+  spread_draws(b_Intercept, r_Person[Person, Intercept]) |&gt;
   # add the grand mean to the person-specific deviations
   mutate(mu = b_Intercept + r_Person)
 ```
@@ -542,7 +542,7 @@ person_effects &lt;- m_part_pool %&gt;%
 
 
 ```r
-person_effects %&gt;% 
+person_effects |&gt; 
   median_qi(mu)
 ```
 
@@ -575,7 +575,7 @@ fixef(m_no_pool)
 
 
 ```r
-person_effects %&gt;% 
+person_effects |&gt; 
   ggplot(aes(mu, Person)) +
   stat_halfeye(fill = "#A2BF8A") +
   geom_vline(xintercept = fixef(m_part_pool)[1, 1], color = "#839496", size = 1) +
@@ -610,7 +610,7 @@ Due to the hierarchical nature of the model, individual estimate are pulled towa
 ```r
 col &lt;- viridis::viridis(3, begin = 0.2, end = 0.8)
 
-person_effects %&gt;% 
+person_effects |&gt; 
   ggplot(aes(mu, Person, fill = Person)) +
   stat_halfeye(alpha = 0.6) +
   geom_vline(xintercept = fixef(m_part_pool)[1, 1], color = "#ECCC87", 
@@ -670,7 +670,7 @@ post &lt;- c(70, 50, 90, 60, 50, 20, 10, 30, 50, 10)
 
 ```r
 dwide &lt;- tibble(id = factor(1:10), 
-            intervention, pre, post) %&gt;% 
+            intervention, pre, post) |&gt; 
   mutate(diff = post - pre,
          id = as_factor(id), 
          intervention =  factor(intervention, levels = c("control", "treat")))
@@ -679,7 +679,7 @@ dwide &lt;- tibble(id = factor(1:10),
 .panel[.panel-name[Dataframe]
 
 ```r
-dwide %&gt;% 
+dwide |&gt; 
   rmarkdown::paged_table()
 ```
 
@@ -695,12 +695,12 @@ dwide %&gt;%
 
 
 ```r
-d &lt;- dwide %&gt;% 
-  select(-diff) %&gt;% 
-  pivot_longer(cols = pre:post, names_to = "time", values_to = "score") %&gt;% 
+d &lt;- dwide |&gt; 
+  select(-diff) |&gt; 
+  pivot_longer(cols = pre:post, names_to = "time", values_to = "score") |&gt; 
   mutate(time = as_factor(time))
 
-d %&gt;% 
+d |&gt; 
   rmarkdown::paged_table()
 ```
 
@@ -722,7 +722,7 @@ We have 10 subjects.
 
 
 ```r
-d %&gt;% 
+d |&gt; 
   summarize(id = n_distinct(id))
 ```
 
@@ -741,9 +741,9 @@ with 2 observations per subject.
 
 
 ```r
-d %&gt;% 
-  group_by(id, intervention) %&gt;% 
-  count() %&gt;% 
+d |&gt; 
+  group_by(id, intervention) |&gt; 
+  count() |&gt; 
   rmarkdown::paged_table()
 ```
 
@@ -761,7 +761,7 @@ d %&gt;%
 How would you analyse these data?
 ]
 
-<div class="countdown" id="timer_60a744c9" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_60b05007" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -782,8 +782,8 @@ se &lt;- function(x) sd(x)/sqrt(length(x))
 
 
 ```r
-d %&gt;% 
-  group_by(intervention, time) %&gt;% 
+d |&gt; 
+  group_by(intervention, time) |&gt; 
   summarise(mean = mean(score),
             sd = sd(score),
             se = se(score))
@@ -806,8 +806,8 @@ d %&gt;%
 
 
 ```r
-dwide %&gt;% 
-  group_by(intervention) %&gt;% 
+dwide |&gt; 
+  group_by(intervention) |&gt; 
   summarise(mean = mean(diff),
             sd = sd(diff),
             se = se(diff))
@@ -831,7 +831,7 @@ dwide %&gt;%
 
 
 ```r
-d %&gt;% 
+d |&gt; 
   ggplot(aes(time, score, color = intervention)) +
   geom_line(aes(group = id), linetype = 1, size = 1) +
   geom_point(size = 4) +
@@ -888,15 +888,17 @@ t.test(diff ~ intervention,
 
 ```r
 library(lme4)
-lme_model &lt;- lmer(score ~ intervention + time + (1|id), 
+lme_model &lt;- lmer(score ~ intervention * time + (1|id), 
                   data = d)
 ```
 
 ]
+
 .panel[.panel-name[Model summary]
 
+
 ```r
-lme_model %&gt;% 
+lme_model |&gt; 
   sjPlot::tab_model()
 ```
 
@@ -913,21 +915,27 @@ lme_model %&gt;%
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;(Intercept)&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;15.50&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&amp;#45;1.02&amp;nbsp;&amp;ndash;&amp;nbsp;32.02&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.066&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;26.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;10.08&amp;nbsp;&amp;ndash;&amp;nbsp;41.92&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&lt;strong&gt;0.001&lt;/strong&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;intervention [treat]&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;19.00&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&amp;#45;1.18&amp;nbsp;&amp;ndash;&amp;nbsp;39.18&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.065&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&amp;#45;2.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&amp;#45;24.52&amp;nbsp;&amp;ndash;&amp;nbsp;20.52&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.862&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;time [post]&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;19.00&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;2.36&amp;nbsp;&amp;ndash;&amp;nbsp;35.64&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&lt;strong&gt;0.025&lt;/strong&gt;&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&amp;#45;2.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&amp;#45;16.13&amp;nbsp;&amp;ndash;&amp;nbsp;12.13&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;0.782&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; "&gt;intervention [treat] *&lt;br&gt;time [post]&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;42.00&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;22.01&amp;nbsp;&amp;ndash;&amp;nbsp;61.99&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "&gt;&lt;strong&gt;&amp;lt;0.001&lt;/strong&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td colspan="4" style="font-weight:bold; text-align:left; padding-top:.8em;"&gt;Random Effects&lt;/td&gt;
@@ -935,15 +943,15 @@ lme_model %&gt;%
 
 &lt;tr&gt;
 &lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;"&gt;&amp;sigma;&lt;sup&gt;2&lt;/sup&gt;&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3"&gt;360.56&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3"&gt;130.00&lt;/td&gt;
 
 &lt;tr&gt;
 &lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;"&gt;&amp;tau;&lt;sub&gt;00&lt;/sub&gt; &lt;sub&gt;id&lt;/sub&gt;&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3"&gt;84.72&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3"&gt;200.00&lt;/td&gt;
 
 &lt;tr&gt;
 &lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;"&gt;ICC&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3"&gt;0.19&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3"&gt;0.61&lt;/td&gt;
 
 &lt;tr&gt;
 &lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;"&gt;N &lt;sub&gt;id&lt;/sub&gt;&lt;/td&gt;
@@ -954,11 +962,12 @@ lme_model %&gt;%
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;"&gt;Marginal R&lt;sup&gt;2&lt;/sup&gt; / Conditional R&lt;sup&gt;2&lt;/sup&gt;&lt;/td&gt;
-&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3"&gt;0.299 / 0.432&lt;/td&gt;
+&lt;td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3"&gt;0.481 / 0.796&lt;/td&gt;
 &lt;/tr&gt;
 
 &lt;/table&gt;
 ]
+
 .panel[.panel-name[Model equations]
 
 $$
@@ -968,7 +977,7 @@ $$
     \text{, for id j = 1,} \dots \text{,J}
 \end{aligned}`
 $$
-]
+]]
 
 ---
 
@@ -1023,7 +1032,7 @@ head(mm)
 
 ---
 
-## Erklärung
+## Explanation
 
 - We are predicting the mean of the outcome variable `score` with a linear model. 
 
@@ -1044,48 +1053,12 @@ head(mm)
 ```r
 library(brms)
 
-priors1 &lt;- get_prior(score ~ intervention*time,
+priors1 &lt;- get_prior(score ~ intervention * time + (1|id),
           data = d)
 ```
 ]
 .panel[.panel-name[Priors]
 
-
-```r
-priors1 %&gt;% 
-    as_tibble() %&gt;% 
-    select(1:4)
-```
-
-```
-## # A tibble: 6 x 4
-##   prior                    class     coef                         group
-##   &lt;chr&gt;                    &lt;chr&gt;     &lt;chr&gt;                        &lt;chr&gt;
-## 1 ""                       b         ""                           ""   
-## 2 ""                       b         "interventiontreat"          ""   
-## 3 ""                       b         "interventiontreat:timepost" ""   
-## 4 ""                       b         "timepost"                   ""   
-## 5 "student_t(3, 25, 22.2)" Intercept ""                           ""   
-## 6 "student_t(3, 0, 22.2)"  sigma     ""                           ""
-```
-
-]
-]
-
----
-
-
-```r
-priors2 &lt;- get_prior(score ~ intervention*time + (1 | id),
-          data = d) 
-```
-
-
-```r
-priors2 %&gt;% 
-    as_tibble() %&gt;% 
-    select(1:4)
-```
 
 ```
 ## # A tibble: 9 x 4
@@ -1102,12 +1075,18 @@ priors2 %&gt;%
 ## 9 "student_t(3, 0, 22.2)"  sigma     ""                           ""
 ```
 
+]
+]
+
 ---
+
 
 
 ```r
 m2 &lt;- brm(score ~ intervention*time + (1 | id),
+          prior = prior(normal(0, 50), class = b),
           data = d,
+          control = list(adapt_delta = 0.9),
           file =  "models/04-treat-time") 
 ```
 
@@ -1129,23 +1108,23 @@ summary(m2)
 ## Group-Level Effects: 
 ## ~id (Number of levels: 10) 
 ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sd(Intercept)    13.45      6.51     1.19    27.33 1.01      732      943
+## sd(Intercept)    14.08      6.31     2.05    27.59 1.00      806      955
 ## 
 ## Population-Level Effects: 
 ##                            Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-## Intercept                     25.36      9.64     6.30    45.17 1.00     1388
-## interventiontreat             -2.07     13.40   -29.31    23.74 1.00     1450
-## timepost                      -2.12      9.54   -21.15    17.36 1.00     2457
-## interventiontreat:timepost    42.42     13.33    15.71    68.61 1.00     2213
+## Intercept                     24.54      8.99     6.19    41.83 1.00     1699
+## interventiontreat             -0.65     12.66   -25.31    24.65 1.00     1711
+## timepost                      -0.75      8.50   -17.23    17.00 1.00     2771
+## interventiontreat:timepost    39.38     11.61    15.30    61.64 1.00     2381
 ##                            Tail_ESS
-## Intercept                      1560
-## interventiontreat              1400
-## timepost                       2110
-## interventiontreat:timepost     2215
+## Intercept                      2366
+## interventiontreat              2017
+## timepost                       2203
+## interventiontreat:timepost     2059
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma    14.12      4.03     8.32    23.52 1.00      845     1550
+## sigma    13.55      3.75     8.16    21.99 1.00      921     1514
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -1157,23 +1136,39 @@ summary(m2)
 
 
 ```r
-m2 %&gt;% 
+m2 |&gt; 
   mcmc_plot("b_")
 ```
 
-&lt;img src="01-hierarchical-models-slides_files/figure-html/unnamed-chunk-50-1.png" width="100%" /&gt;
+&lt;img src="01-hierarchical-models-slides_files/figure-html/unnamed-chunk-48-1.png" width="100%" /&gt;
 
                                                                                                                                                                                     
 ---
 
 
 ```r
-conditional_effects(m2, effects = "intervention:time")
+ce &lt;- conditional_effects(m2, effects = "intervention:time")
+```
+
+
+
+
+```r
+ce
+```
+
+&lt;img src="01-hierarchical-models-slides_files/figure-html/unnamed-chunk-50-1.png" width="100%" /&gt;
+
+---
+
+
+```r
+plot(ce, plot = FALSE)[[1]] + 
+  scale_color_brewer(type = "qual") +
+  scale_fill_brewer(type = "qual")
 ```
 
 &lt;img src="01-hierarchical-models-slides_files/figure-html/unnamed-chunk-51-1.png" width="100%" /&gt;
-
-
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>

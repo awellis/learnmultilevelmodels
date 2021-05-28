@@ -29,6 +29,8 @@ output:
 library(tidyverse)
 library(rmarkdown)
 library(countdown)
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
 ```
 
 
@@ -88,9 +90,9 @@ IQwide <- tribble(
 .panel[.panel-name[Pivot longer]
 
 ```{r}
-IQdata <- IQwide %>% 
-  pivot_longer(everything(), names_to = "Person", values_to = "IQ") %>% 
-  mutate(Person = as_factor(Person)) %>% 
+IQdata <- IQwide |> 
+  pivot_longer(everything(), names_to = "Person", values_to = "IQ") |> 
+  mutate(Person = as_factor(Person)) |> 
   arrange(Person)
 ```
 ]
@@ -98,8 +100,8 @@ IQdata <- IQwide %>%
 
 ```{r}
 library(kableExtra)
-IQdata %>% 
-  kbl() %>% 
+IQdata |> 
+  kbl() |> 
   scroll_box(width = "500px", height = "200px")
 ```
 
@@ -116,8 +118,8 @@ IQdata %>%
 ```{r}
 se <- function(x) sd(x)/sqrt(length(x))
 
-IQdata %>% 
-  group_by(Person) %>% 
+IQdata |> 
+  group_by(Person) |> 
   summarise(mean = mean(IQ),
             sd = sd(IQ),
             se = se(IQ))
@@ -126,7 +128,7 @@ IQdata %>%
 ---
 
 ```{r}
-IQdata %>% 
+IQdata |> 
   ggplot(aes(Person, IQ)) +
   geom_point()
 ```
@@ -151,7 +153,7 @@ countdown(minutes = 3)
 ## Parameter estimation
 
 
-Our goal is to estimate the 3 latent IQ, and the group mean. We assume that for each person, the measurements are normally distributed around that person's latent IQ. For simplicity, we assume a common standard deviation.
+Our goal is to estimate the 3 latent IQs, and the group mean. We assume that for each person, the measurements are normally distributed around that person's latent IQ. For simplicity, we assume a common standard deviation.
 
 $$ IQ_{i} \sim \mathcal{N}(\mu_j, \sigma^2) $$
 
@@ -171,7 +173,7 @@ We have 3 possibilies:
 
 - __Complete pooling:__ We can pretend that all observations are from the same person.
 
-- __Partial pooling:__ We can take into account that we have 3 observations for each person. These 3 people are similar to each other, i.e. they are samples from a super-population of people. 
+- __Partial pooling:__ We can take into account that we have multiple observations for each person. We can use these to estimate each person's mean, but we assume that these 3 people are similar to each other, i.e. they are samples from a super-population of people. Therefore, information we have from one person can inform other people's estimates.
 
 
 
@@ -185,7 +187,7 @@ $$
 \begin{aligned}
   \operatorname{IQ}_{i}  &\sim N \left(\alpha_{j}, \sigma^2 \right) \\
     \alpha_{j}  &\sim N \left(\mu_{\alpha}, \sigma^2_{\alpha} \right)
-    \text{, for Person j = 1,} \dots \text{,J}
+    \text{, for person j = 1,} \dots \text{,J}
 \end{aligned}
 $$ 
 
@@ -258,15 +260,14 @@ library(tidybayes)
 priors <- get_prior(IQ ~ 1 + (1 | Person),
                  data = IQdata)
 
-priors %>%
-  parse_dist(prior) %>%
+priors |>
+  parse_dist(prior) |>
   ggplot(aes(y = class, dist = .dist, args = .args)) +
   stat_dist_halfeye() +
   labs(
-    title = "Prior Verteilungen",
-    subtitle = "im Partial Pooling Modell",
-    x = NULL
-  )
+    title = "Priors",
+    subtitle = "partial pooling model",
+    x = NULL)
 ```
 
 
@@ -325,8 +326,8 @@ library(tidybayes)
 
 get_variables(m_part_pool)
 
-person_effects <- m_part_pool %>%
-  spread_draws(b_Intercept, r_Person[Person, Intercept]) %>%
+person_effects <- m_part_pool |>
+  spread_draws(b_Intercept, r_Person[Person, Intercept]) |>
   # add the grand mean to the person-specific deviations
   mutate(mu = b_Intercept + r_Person)
 ```
@@ -335,7 +336,7 @@ person_effects <- m_part_pool %>%
 ---
 
 ```{r}
-person_effects %>% 
+person_effects |> 
   median_qi(mu)
 ```
 
@@ -349,7 +350,7 @@ fixef(m_no_pool)
 .panel[.panel-name[Plot Code]
 
 ```{r, echo=TRUE, eval=FALSE}
-person_effects %>% 
+person_effects |> 
   ggplot(aes(mu, Person)) +
   stat_halfeye(fill = "#A2BF8A") +
   geom_vline(xintercept = fixef(m_part_pool)[1, 1], color = "#839496", size = 1) +
@@ -364,7 +365,7 @@ person_effects %>%
 .panel[.panel-name[Plot]
 
 ```{r echo=FALSE}
-person_effects %>% 
+person_effects |> 
   ggplot(aes(mu, Person)) +
   stat_halfeye(fill = "#A2BF8A") +
   geom_vline(xintercept = fixef(m_part_pool)[1, 1], color = "#839496", size = 1) +
@@ -394,7 +395,7 @@ Due to the hierarchical nature of the model, individual estimate are pulled towa
 ```{r, echo=TRUE, eval=FALSE}
 col <- viridis::viridis(3, begin = 0.2, end = 0.8)
 
-person_effects %>% 
+person_effects |> 
   ggplot(aes(mu, Person, fill = Person)) +
   stat_halfeye(alpha = 0.6) +
   geom_vline(xintercept = fixef(m_part_pool)[1, 1], color = "#ECCC87", 
@@ -418,7 +419,7 @@ person_effects %>%
 ```{r, echo=FALSE}
 col <- viridis::viridis(3, begin = 0.2, end = 0.8)
 
-person_effects %>% 
+person_effects |> 
   ggplot(aes(mu, Person, fill = Person)) +
   stat_halfeye(alpha = 0.6) +
   geom_vline(xintercept = fixef(m_part_pool)[1, 1], color = "#ECCC87", 
@@ -472,7 +473,7 @@ post <- c(70, 50, 90, 60, 50, 20, 10, 30, 50, 10)
 
 ```{r}
 dwide <- tibble(id = factor(1:10), 
-            intervention, pre, post) %>% 
+            intervention, pre, post) |> 
   mutate(diff = post - pre,
          id = as_factor(id), 
          intervention =  factor(intervention, levels = c("control", "treat")))
@@ -480,7 +481,7 @@ dwide <- tibble(id = factor(1:10),
 ]
 .panel[.panel-name[Dataframe]
 ```{r}
-dwide %>% 
+dwide |> 
   rmarkdown::paged_table()
 ```
 
@@ -489,12 +490,12 @@ dwide %>%
 ---
 
 ```{r}
-d <- dwide %>% 
-  select(-diff) %>% 
-  pivot_longer(cols = pre:post, names_to = "time", values_to = "score") %>% 
+d <- dwide |> 
+  select(-diff) |> 
+  pivot_longer(cols = pre:post, names_to = "time", values_to = "score") |> 
   mutate(time = as_factor(time))
 
-d %>% 
+d |> 
   rmarkdown::paged_table()
 ```
 
@@ -509,7 +510,7 @@ We have 10 subjects.
 
 
 ```{r}
-d %>% 
+d |> 
   summarize(id = n_distinct(id))
 ```
 ]
@@ -520,9 +521,9 @@ with 2 observations per subject.
 
 
 ```{r}
-d %>% 
-  group_by(id, intervention) %>% 
-  count() %>% 
+d |> 
+  group_by(id, intervention) |> 
+  count() |> 
   rmarkdown::paged_table()
 ```
 ]
@@ -553,8 +554,8 @@ se <- function(x) sd(x)/sqrt(length(x))
 .panel[.panel-name[Summarize (long)]
 
 ```{r}
-d %>% 
-  group_by(intervention, time) %>% 
+d |> 
+  group_by(intervention, time) |> 
   summarise(mean = mean(score),
             sd = sd(score),
             se = se(score))
@@ -565,8 +566,8 @@ d %>%
 .panel[.panel-name[Summarize (wide)]
 
 ```{r}
-dwide %>% 
-  group_by(intervention) %>% 
+dwide |> 
+  group_by(intervention) |> 
   summarise(mean = mean(diff),
             sd = sd(diff),
             se = se(diff))
@@ -581,7 +582,7 @@ dwide %>%
 .panel[.panel-name[Plot Code]
 
 ```{r echo=TRUE, eval=FALSE}
-d %>% 
+d |> 
   ggplot(aes(time, score, color = intervention)) +
   geom_line(aes(group = id), linetype = 1, size = 1) +
   geom_point(size = 4) +
@@ -594,7 +595,7 @@ d %>%
 .panel[.panel-name[Plot]
 
 ```{r echo=FALSE}
-d %>% 
+d |> 
   ggplot(aes(time, score, color = intervention)) +
   geom_line(aes(group = id), linetype = 1, size = 1) +
   geom_point(size = 4) +
@@ -629,17 +630,20 @@ t.test(diff ~ intervention,
 
 ```{r}
 library(lme4)
-lme_model <- lmer(score ~ intervention + time + (1|id), 
+lme_model <- lmer(score ~ intervention * time + (1|id), 
                   data = d)
 ```
 
 ]
+
 .panel[.panel-name[Model summary]
+
 ```{r}
-lme_model %>% 
+lme_model |> 
   sjPlot::tab_model()
 ```
 ]
+
 .panel[.panel-name[Model equations]
 
 $$
@@ -649,7 +653,7 @@ $$
     \text{, for id j = 1,} \dots \text{,J}
 \end{aligned}
 $$
-]
+]]
 
 ---
 
@@ -694,16 +698,16 @@ head(mm)
 ```{r}
 library(brms)
 
-priors1 <- get_prior(score ~ intervention*time,
+priors1 <- get_prior(score ~ intervention * time + (1|id),
           data = d)
 
 ```
 ]
 .panel[.panel-name[Priors]
 
-```{r}
-priors1 %>% 
-    as_tibble() %>% 
+```{r echo=FALSE}
+priors1 |> 
+    as_tibble() |> 
     select(1:4)
 ```
 
@@ -712,22 +716,12 @@ priors1 %>%
 
 ---
 
-```{r}
-priors2 <- get_prior(score ~ intervention*time + (1 | id),
-          data = d) 
-```
-
-```{r}
-priors2 %>% 
-    as_tibble() %>% 
-    select(1:4)
-```
-
----
 
 ```{r}
 m2 <- brm(score ~ intervention*time + (1 | id),
+          prior = prior(normal(0, 50), class = b),
           data = d,
+          control = list(adapt_delta = 0.9),
           file =  "models/04-treat-time") 
 ```
 
@@ -741,7 +735,7 @@ summary(m2)
 ---
 
 ```{r}
-m2 %>% 
+m2 |> 
   mcmc_plot("b_")
 ```
 
@@ -749,8 +743,20 @@ m2 %>%
 ---
 
 ```{r}
-conditional_effects(m2, effects = "intervention:time")
+ce <- conditional_effects(m2, effects = "intervention:time")
 ```
 
 
+
+```{r}
+ce
+```
+
+---
+
+```{r}
+plot(ce, plot = FALSE)[[1]] + 
+  scale_color_brewer(type = "qual") +
+  scale_fill_brewer(type = "qual")
+```
 
