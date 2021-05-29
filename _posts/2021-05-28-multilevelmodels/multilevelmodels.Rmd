@@ -346,12 +346,11 @@ head(posts)
 ```
 
 
-It isn't that obvious, but the estimate of the interecpt is narrower in model 3.
+It isn't that obvious, but the estimate of the intercept is narrower in model 3.
 
 ```{r}
-posts <-
-  tibble(name  = str_c("m", 2:3),
-         model = str_c("Model ", 2:3)) |> 
+posts <- tibble(name  = str_c("m", 2:3),
+                model = str_c("Model ", 2:3)) |>
   mutate(fit = map(name, get)) |> 
   mutate(post = map(fit, posterior_samples))
   
@@ -658,6 +657,17 @@ pp_check(fit1_prior, type = "dens_overlay_grouped", group = "treatment")
 
 ```{r}
 pp_check(fit1, type = "dens_overlay_grouped", group = "treatment")
+```
+
+```{r}
+pp_check(fit1, nsamples = 100, type ='stat', stat='median')
+```
+
+```{r eval=FALSE, include=FALSE}
+pp_check(fit1, type = "stat_grouped",
+         nsamples = 1000,
+         group = "subject",
+         stat = "sd")
 ```
 
 
