@@ -1,7 +1,7 @@
 ---
 title: "Assignment 4"
 description: | 
-  The N400 effect
+  Effect of tDCS stimulation on episodic memory
 date: 05-28-2021
 author:
   - first_name: "Andrew"
@@ -36,219 +36,58 @@ theme_set(theme_grey(base_size = 14) +
 ```
 
 
-This [example](https://vasishth.github.io/bayescogsci/book/sec-N400hierarchical.html#sec:mcvivs) is borrowed the companion website for the @shravanvasishthIntroductionBayesianData.
 
-```{r eval=FALSE, include=TRUE}
-# install.packages("remotes")
-remotes::install_github("bnicenboim/bcogsci")
+
+# Effect of tDCS on memory
+
+
+You are going to analyze data from a study in which 34 elderly subjects were given anodal (activating) tDCS over their left tempero-parietal junction (TPJ). Subjects were instructed to learn association between images and pseudo-words (data were inspired by @antonenkoTDCSinducedEpisodicMemory2019).
+
+Episodic memory is measured by percentage of correctly recalled word-image pairings. We also have response times for correct decisions.
+
+Each subject was tested 5 times in the TPJ stimulation condition, and a further 5 times in a sham stimulation condition.
+
+The variables in the dataset are:
+
+```
+subject: subject ID
+stimulation: TPJ or sham (control)
+block: block
+age: age
+correct: accuracy per block
+rt: mean RTs for correct responses
+```
+
+You are mainly interested in whether recall ability is better during the TPJ stimulation condition than during sham.
+
+
+```{r}
+d <- read_csv("https://raw.githubusercontent.com/kogpsy/neuroscicomplab/main/data/tdcs-tpj.csv")
 ```
 
 
 ```{r}
-library(bcogsci)
-data(df_eeg)
-
-df_eeg <- df_eeg %>%
-  mutate(c_cloze = cloze - mean(cloze))
+glimpse(d)
 ```
-
-
 
 ```{r}
-df_eeg
+d <- d %>% 
+  mutate(across(c(subject, stimulation, block), ~as_factor(.))) %>% 
+  drop_na()
 ```
+
 
 
 :::exercise
 
+- specify a linear model
+
+- specify a null model
+
+- estimate a Bayes factor for the effect of TPJ stimulation
+    + using the Savage-Dickey density ratio test
+    + using the bridge sampling method
+
+- control for subjects' age
 :::
-
-
-
-```{r eval=FALSE, include=FALSE}
-lm1 <- lme4::lmer(n400 ~ cloze + (1 | subj), data = df_eeg)
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-fit_N400_v <- brm(n400 ~ c_cloze + (c_cloze || subj),
-                  prior =
-                      c(prior(normal(0, 10), class = Intercept),
-                        prior(normal(0, 10), class = b, coef = c_cloze),
-                        prior(normal(0, 50), class = sigma),
-                        prior(normal(0, 20), class = sd, coef = Intercept, group = subj),
-                        prior(normal(0, 20), class = sd, coef = c_cloze, group = subj)
-                        ),
-              data = df_eeg)
-```
 

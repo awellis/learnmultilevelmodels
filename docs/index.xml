@@ -14,6 +14,17 @@
     <generator>Distill</generator>
     <lastBuildDate>Sat, 29 May 2021 00:00:00 +0000</lastBuildDate>
     <item>
+      <title>Estimating a Bayes factor for a difference in means</title>
+      <dc:creator>Andrew Ellis</dc:creator>
+      <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-29-bayes-factor-group-difference</link>
+      <description>Using Savage-Dickey and bridge sampling</description>
+      <category>multilevel models</category>
+      <category>Bayes factor</category>
+      <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-29-bayes-factor-group-difference</guid>
+      <pubDate>Sat, 29 May 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://awellis.github.io/learnmultilevelmodels/posts/2021-05-29-bayes-factor-group-difference/distill-preview.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
+    <item>
       <title>Multilevel formula syntax</title>
       <dc:creator>Andrew Ellis</dc:creator>
       <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-29-more-multilevel-models</link>

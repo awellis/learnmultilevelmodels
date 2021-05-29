@@ -45,7 +45,7 @@ navbar:
           href: assignment-2.html
         - text: "Assignment 3: Pupil popularity"
           href: assignment-3.html
-        - text: "Assignment 4: N400"
+        - text: "Assignment 4: tDCS and memory"
           href: assignment-4.html
 
     - text: "Slides"

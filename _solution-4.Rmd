@@ -1,0 +1,186 @@
+---
+title: "Solution 4"
+description: | 
+  Effect of tDCS stimulation on epipsodic memory
+date: 05-28-2021
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/solution-4.html
+bibliography: ./bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+      self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r}
+library(tidyverse)
+library(brms)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+
+
+
+# Effect of tDCS on memory
+
+
+You are going to analyze data from a study in which 34 elderly subjects were given anodal (activating) tDCS over their left tempero-parietal junction (TPJ). Subjects were instructed to learn association between images and pseudo-words (data were inspired by @antonenkoTDCSinducedEpisodicMemory2019).
+
+Episodic memory is measured by percentage of correctly recalled word-image pairings. We also have response times for correct decisions.
+
+Each subject was tested 5 times in the TPJ stimulation condition, and a further 5 times in a sham stimulation condition.
+
+The variables in the dataset are:
+
+```
+subject: subject ID
+stimulation: TPJ or sham (control)
+block: block
+age: age
+correct: accuracy per block
+rt: mean RTs for correct responses
+```
+
+You are mainly interested in whether recall ability is better during the TPJ stimulation condition than during sham, and whether subjects are faster to correctly recall pairings.
+
+
+```{r}
+d <- read_csv("https://raw.githubusercontent.com/kogpsy/neuroscicomplab/main/data/tdcs-tpj.csv")
+```
+
+
+```{r}
+glimpse(d)
+```
+
+```{r}
+d <- d %>% 
+  mutate(across(c(subject, stimulation, block), ~as_factor(.))) %>% 
+  drop_na()
+```
+
+
+
+:::exercise
+
+- specify a linear model
+
+- specify a null model
+
+- control for subjects' age
+:::
+
+
+## Lösungsvorschläge
+
+Wir wählen wieder die Kontrollgruppe als Referenzkategorie. Dies sollte schon der Fall sein, da die Reihenfolge der Faktorstufen per Default alphabetisch ist.
+
+
+```{r}
+levels(d$stimulation)
+```
+
+
+Diesmal wählen wir wieder die Variante mit Achsenabschnitt, obwohl wir auch hier die Mittelwerte der beiden Stimulationarten schätzen könnten. Zusätzlich muss nun berücksichtigt werden, dass die Art der Stimulation eine *within* Manipulation ist---jede Person wird in beiden Bedingungen getestet. Aufgrund unserer Formel `1 + stimulation` repräsentiert der Achsenabschnitt die Kontrollbedingung, und der Koeffizient `stimulation` repräsentiert den Unterschied zwischen den Bedingungen. Wir wollen als für beide Bedingungen sowohl den Mittelwert über alle Personen (population-level effect), als auch eine Abweichung (varying effect oder group-level effect) für jede Person. Dies erreichen wir mit mit dem Zusatz `(1 + stimulation | subject)`. 
+
+Wir haben ein solches Modell in der vorletzten Sitzung als *Partial Pooling* Modell kennengelernt. Pooling heisst hier, dass wir eine Hierarchie einführen, so dass die Abweichungsterme der Personen aus einer Verteilungen kommen, mit einem Mittelwert von 0 (da es Abweichungen sind), und einer Standardabweichung (group-level SD). Dies wird hier für beide Bedingungen geschätzt. Zusätzlich gehen wir davon aus, dass die Abweichungen einer Person in den beiden Bedingungen korreliert sind. Deshalb werden die Abweichungsterme als multivariat normalverteilt modelliert, und die Korrelation zwischen dem `Intercept` und dem `stimulation` Effekt wird auch geschätzt.
+
+
+```{r}
+formula1 <- rt ~ 1 + stimulation + (1 + stimulation | subject)
+```
+
+
+```{r warning=FALSE}
+get_prior(formula1, data = d) |> 
+  as_tibble() |> 
+  select(1:4)
+```
+
+
+Die Korrelation zwischen `Intercept` und `stimulationTPJ` taucht bei den Priors als `lkj(1)` Prior auf. Die LKJ Verteilung ist eine Verteilung von Korrelationskoeffizienten, welche zwischen -1 und 1 liegen können. Der Parameter $\eta$ der LKJ Verteilung gibt an, wie stark die Korrelationen sind. Für $\eta>0$ erwarten wir niedrige Korrelationen, für $\eta<0$ eher stärkere Korrelationen.
+
+
+Wenn wir zusätzlich für das Alter der Personen kontrollieren möchten, dann nehmen wir auch die Variable `age` als Prädiktor ins Modell.
+
+
+```{r}
+formula2 <- rt ~ 1 + stimulation + age + (1 + stimulation | subject)
+```
+
+
+```{r warning=FALSE}
+get_prior(formula2, data = d) |> 
+  as_tibble() |> 
+  select(1:4)
+```
+
+
+Wir nehmen hier die Default Priors für alle Parameter ausser dem Unterschied zwischen den Bedingungen. Dafür nehmen wir einen normalverteilten Prior mit Erwartungswert 0 und einer Standardabweichung von 1.
+
+```{r warning=FALSE, message=FALSE}
+m2 <- brm(formula2,
+          prior = prior(normal(0, 1), class = b, coef = stimulationTPJ) +
+            prior(normal(0, 2), class = b, coef = age),
+          data = d,
+          sample_prior = TRUE,
+          file = "models/sol4m2",
+          file_refit = "on_change",
+          control = list(adapt_delta = 0.95))
+```
+
+
+Diese Parameter finden wir alle im Output: `sd(Intercept)`, `sd(stimulationTPJ` und `cor(Intercept,stimulationTPJ)` sind die Standardabweichungen und Korrelationen zwischen den `Group-Level Effects`, und der Achsenabschnitt, `stimulationTPJ` und `age` sind die mittleren Effekte, unabhängig von den Personen.
+
+
+<aside>
+Mit dem Argument `control = list(adapt_delta = 0.95)` kontrollieren wir das Verhalten des Sampling Algorithmus. Dies ist hier nötig, weil die Schrittgrösse in der Adaptionsperiode kleiner sein müssen, gemäss einer Warnung von Stan.
+</aside>
+
+```{r}
+summary(m2)
+```
+
+Ein Nullmodell könnte hier das Modell ohne die Population und Group Level Effects von `stimulation` sein.
+
+
+```{r}
+m2_null <- brm(rt ~ 1 + age + (1 | subject),
+          data = d2,
+          file = "models/sol3m2_null",
+          file_refit = "on_change",
+          control = list(adapt_delta = 0.95))
+```
+
+
+Eine etwas einfachere, aber auch weniger elegante Methode, wäre, zuerst die mittleren RTs für jede Person in den beiden Bedingungen zu berechnen, und dann den Unterschied zwischen den Bedingungen. 
+
+
+```{r}
+d2sum <- d2 %>% 
+  group_by(subject, stimulation) %>% 
+  summarise(rt = mean(rt, na.rm = TRUE)) %>% 
+  pivot_wider(names_from = "stimulation",
+              values_from = "rt")  %>% 
+  mutate(diff = control - TPJ)
+```
+
+
+Damit könnte man einen frequentistischen t-Test machen, oder ein lineares Modell mit Bayesianischer Schätzung, mit folgender Formel: `diff ~ 1 + (1|subject)`.
