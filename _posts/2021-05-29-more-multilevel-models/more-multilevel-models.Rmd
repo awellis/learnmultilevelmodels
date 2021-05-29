@@ -1,0 +1,238 @@
+---
+title: "Multilevel formula syntax"
+description: | 
+  Extended multilevel formula syntax and types of clusters
+date: 05-29-2021
+categories:
+  - multilevel models
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Cognitive psychology, perception & methods, Univerity of Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/more-multilevel-models.html
+bibliography: ../../bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+      css: ../../css/style.css
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(brms)
+library(tidybayes)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+# Types of clusters
+
+So far we have looked at simple hierachical structures. For example, we have considered repeated measures on subjects at two time points, or over the course of several days.
+
+Multilevel models allow us take complex hierarchical structures into account when modelling data---for instance. we might have data from pupils nested within classes and schools, we might have two separate grouping variable that are crossed, such as subjects and word stimuli in an experiment.
+
+## Crossed
+
+Imagine that we are testing 3 subjects in an experiment, and each subject is shown each of 10 stimuli. 
+
+```{r}
+subject_id <- str_c("subj_", 1:3)
+item_id <- 1:10
+```
+
+```{r}
+crossing(subject_id, item_id)
+```
+In this case we might want to take into account that both subjects and items can be considered as sources of variance, and that the observations can be clustered by both subjects and item. Every subject and every item appears multiple times in the dataset, and each subject is presented with all the items. In this case, subjects and items are **crossed**.
+
+In a traditional analysis, it is commonplace to aggregate over one of the clusters while computing estimates for the other. For instance, when computing subject-specific means, we might simply ignore the items by aggregating over them.
+
+However, this can lead to aggregation artefacts, and systematically ignores aources of variation [@baayenMixedeffectsModelingCrossed2008].
+
+In a multilevel model, we can instead simultaneously model both sources of variability as separate cluster.
+
+If we are predicting a `response` variable in different conditions, we can include these crossed varying effects using the following notation.
+
+
+### Varying intercepts
+
+```{r eval=FALSE, include=TRUE}
+response ~ 1 + condition + (1 | subject) + (1 | item)
+```
+
+or, equivalently
+
+```{r eval=FALSE, include=TRUE}
+response ~ 1 + condition + (1 | subject + item)
+```
+
+### Varying intercepts and slopes 
+
+Note that here the intercept is automatically added to the formula.
+
+```{r eval=FALSE, include=TRUE}
+response ~ condition + (condition | subject) + (condition | item)
+```
+
+
+### Example
+
+For example, @wagenmakersLinearRelationMean2007 had subjects perform a lexical decision task in two conditions, `speeded` and `accuracy`, in which the instructions were to decide either as quickly or as accurately as posssible whether a string of letters was a word or a non-word. The response variable were response times and choices.
+
+
+```{r}
+library(rtdists)
+data(speed_acc) 
+
+speed_acc <- speed_acc %>%
+  as_tibble() |> 
+  select(-censor, -block)
+
+
+df_speed_acc <- speed_acc %>% 
+   # remove rt under 180 ms and above 3000 ms
+  filter(rt > 0.18, rt < 3) %>% 
+   # convert to character
+  mutate(across(c(stim_cat, response), as.character),
+         correct = as.numeric(stim_cat == response),
+         across(c(stim_cat, response), as_factor)) 
+```
+
+
+```{r}
+df_speed_acc
+```
+
+We are interested in the subject and stimulus IDs as sources of variability, and the differences in accuracy between instruction conditions. 
+
+
+**Varying intercept model**
+
+```{r eval=FALSE, include=TRUE}
+brm(correct ~ condition + (1 | id) + (1 | stim),
+    family = bernoulli(),
+    data = df_speed_acc)
+```
+
+
+**Varying intercept and slope model**
+
+```{r eval=FALSE, include=TRUE}
+brm(correct ~ condition + (condition | id) + (condition | stim),
+    family = bernoulli(),
+    data = df_speed_acc)
+```
+
+
+
+
+## Nested
+
+Scholastic aptitude tests are given multiple times to students (repeated observations nested within students), and students are nested within schools. Schools in turn can be nested within districts. Here, students are said to be nested within schools, meaning that each school contains students unique to that school.
+
+A further example could be therapists working with several different patients.
+
+For example, to model varying effects for therapists nested within patients, we can can use the following syntax.
+
+```{r eval=FALSE, include=TRUE}
+response ~ condition + (condition | therapist/patient)
+```
+
+This is expanded to 
+
+```{r eval=FALSE, include=TRUE}
+response ~ condition + (condition | therapist) + (condition | therapist:patient)
+```
+
+The `:` operator creates a new grouping factor that consists of the combined levels of therapist and patient. 
+
+
+```{r}
+nested <- tibble(
+  patient = c(rep("A",2), rep("B",2), rep("C",2), rep("D",2)),
+  therapist  = c(rep("GE", 4), rep("DF", 4))
+)
+```
+
+
+## Extended multilevel formula syntax
+
+This is explained in @burknerAdvancedBayesianMultilevel2018 and in the vignettes for the `brms` package.
+
+<aside>
+You can access this by entering `vignette("brms_multilevel")` in the R console.
+</aside>
+
+The syntax in `brms` is very close to that introduced by `lme4` [@batesFittingLinearMixedEffects2015]. However, `brms` extend the syntax so that nore complex models cab be expressed.
+
+
+In general, the syntax has the form
+
+```{r eval=FALSE, include=TRUE}
+response ~ pterms + (gterms | group)
+```
+
+The `pterms` part contains the population-level effects. The `gterms` part contains so called group-level effects that are assumed to vary within levels of a grouping variable
+
+
+For example, `(1 | group)`, is the simplest possible mixed-model formula, where each level of the grouping factor, `group`, has its own varying intercept, which can be thought of in two ways:
+
+1) as a deviation $\alpha_j$ from the average intercept $\alpha$. The $\alpha_j$ terms have the distribution $\alpha_j \sim \mathcal{N}(0, \sigma_{\alpha})$.
+
+2) as a random variate drawn from the distribution $\alpha_j \sim \mathcal{N}(\alpha, \sigma_{\alpha})$
+
+The two are equivalent (you can always remove the mean from a normal distribution and add it to a zero mean random variate), but 1) emphasizes the decomposition into two components, whereas 2) emphasizes the hierarchical structure.
+
+In addition to the `lme4` inspired syntax, `brms` offers several extensions to the formula syntax.
+
+
+### Grouping terms
+
+Varying effects can be grouped using the `gr()` function, with the argument `by` specifying sub-populations of the groups. For each level of the by variable, a separate variance-covariance matrix will be fitted. 
+
+
+For example, the following code fits varying intercepts for patients, but separately for each treatment.
+
+```{r eval=FALSE, include=TRUE}
+response ~ 1 + (1 | gr(patient, by = "treatment"))
+```
+
+
+### Multi-membership grouping terms
+Varying effects can also be members of several groups---this is taken care of with the `mm()` function. As an example, pupils might change schools during the term, meaning that they are member of both school1 and school2. We can also take into account the amount of time spent at each school using the `weights` argument.
+
+
+```{r eval=FALSE, include=TRUE}
+response ~ x1 + (1 | mm(school1, school2, weights = cbind(w1, w2)
+```
+
+
+### Correlation between varying effects
+
+If you are predicting family-specific (distributional) parameters, and you are including varying effects for a grouping variable, you might want to model a correlation between these effects. You can do by including the term `|s|`, where `s` can be any arbitrary identifier.
+
+```{r eval=FALSE, include=TRUE}
+bf(response ~ 1 + (1 |s| subject),
+   sigma ~ 1 + (1 |s| subject))
+```
+
+If on the other hand you don't want to estimate the correlation between varying intercepts and varying slopes, you can omit this by leaving out the identifier between the `| |`.
+
+```{r eval=FALSE, include=TRUE}
+response ~ 1 + condition + (1 || subject)
+```
