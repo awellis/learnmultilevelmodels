@@ -38,7 +38,7 @@ theme_set(theme_grey(base_size = 14) +
 
 
 
-## Einführung
+## Introduction
 
 
 .pull-left[

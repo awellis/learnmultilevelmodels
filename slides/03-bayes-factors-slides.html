@@ -83,7 +83,7 @@ theme_set(theme_grey(base_size = 14) +
 
 
 
-## Einführung
+## Introduction
 
 
 .pull-left[
@@ -132,7 +132,7 @@ We have a within factor ("time") and a between factor (`intervention`).
 
 ]
 
-<div class="countdown" id="timer_60b1ec39" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_60b20aea" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -868,30 +868,6 @@ m2 &lt;- brm(m2_formula,
           cores = parallel::detectCores(),
           sample_prior = TRUE,
           file = here::here("models/05-m2-iq-bf"))
-```
-
-```
-## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-## clang -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Users/andrew/Library/R/4.1/library/Rcpp/include/"  -I"/Users/andrew/Library/R/4.1/library/RcppEigen/include/"  -I"/Users/andrew/Library/R/4.1/library/RcppEigen/include/unsupported"  -I"/Users/andrew/Library/R/4.1/library/BH/include" -I"/Users/andrew/Library/R/4.1/library/StanHeaders/include/src/"  -I"/Users/andrew/Library/R/4.1/library/StanHeaders/include/"  -I"/Users/andrew/Library/R/4.1/library/RcppParallel/include/"  -I"/Users/andrew/Library/R/4.1/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/Users/andrew/Library/R/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Users/andrew/Library/R/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Dense:1:
-## In file included from /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Core:88:
-## /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name 'namespace'
-## namespace Eigen {
-## ^
-## /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected ';' after top level declarator
-## namespace Eigen {
-##                ^
-##                ;
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Users/andrew/Library/R/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-## In file included from /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Dense:1:
-## /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Core:96:10: fatal error: 'complex' file not found
-## #include &lt;complex&gt;
-##          ^~~~~~~~~
-## 3 errors generated.
-## make: *** [foo.o] Error 1
 ```
 
 
