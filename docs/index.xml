@@ -12,7 +12,16 @@
       <link>https://awellis.github.io/learnmultilevelmodels</link>
     </image>
     <generator>Distill</generator>
-    <lastBuildDate>Fri, 28 May 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 29 May 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Multilevel formula syntax</title>
+      <dc:creator>Andrew Ellis</dc:creator>
+      <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-29-more-multilevel-models</link>
+      <description>Extended multilevel formula syntax and types of clusters</description>
+      <category>multilevel models</category>
+      <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-29-more-multilevel-models</guid>
+      <pubDate>Sat, 29 May 2021 00:00:00 +0000</pubDate>
+    </item>
     <item>
       <title>Multilevel models</title>
       <dc:creator>Andrew Ellis</dc:creator>

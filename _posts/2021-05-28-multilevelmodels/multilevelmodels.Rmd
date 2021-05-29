@@ -335,16 +335,6 @@ summary(m3)
 
 
 
-```{r eval=FALSE, include=FALSE}
-posts <-
-  tibble(name  = str_c("fit", 1:3),
-         prior = str_c("normal(0, ", c(10, 1, 0.1), ")")) |> 
-  mutate(fit = map(name, get)) |> 
-  mutate(post = map(fit, posterior_samples))
-  
-head(posts)
-```
-
 
 It isn't that obvious, but the estimate of the intercept is narrower in model 3.
 

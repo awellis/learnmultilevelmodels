@@ -43,6 +43,10 @@ navbar:
           href: assignment-1.html
         - text: "Assignment 2"
           href: assignment-2.html
+        - text: "Assignment 3: Pupil popularity"
+          href: assignment-3.html
+        - text: "Assignment 4: N400"
+          href: assignment-4.html
 
     - text: "Slides"
       menu:
@@ -54,6 +58,8 @@ navbar:
           href: slides/01-linear-models-slides.html
         - text: "Hierarchical models using brms"
           href: slides/01-hierarchical-models-slides.html
+        - text: "Bayes factors"
+          href: slides/03-bayes-factors-slides.html
 
     # - text: "Documents"
     #   menu:
