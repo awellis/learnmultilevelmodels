@@ -37,7 +37,7 @@ theme_set(theme_grey(base_size = 14) +
 ```
 
 
-We'll look at a dataset containing popularity ratings (given by  classmates) and various personal characteristics of pupils in different classes. The data are available from the[companion website](https://multilevel-analysis.sites.uu.nl/intro-to-multilevel-analyses/) of a book on multilevel analysis [@MultilevelAnalysisTechniques]. The code used here borrows heavily from one of the author's [website](https://www.rensvandeschoot.com/tutorials/brms-started/).
+We'll look at a dataset containing popularity ratings (given by  classmates) and various personal characteristics of pupils in different classes. The data are available from the[companion website](https://multilevel-analysis.sites.uu.nl/intro-to-multilevel-analyses/) of a book on multilevel analysis [@MultilevelAnalysisTechniques]. The code used here borrows heavily from one of the authors' [website](https://www.rensvandeschoot.com/tutorials/brms-started/).
 
 ## Download data
 
@@ -248,7 +248,7 @@ fit3 <- brm(popular ~ 1 + sex + extrav + teacher_exp + (1 | class),
 
 
 
-Now it's time for some plot.
+Now it's time for some plots.
 
 ```{r}
 fit2 |> mcmc_plot()

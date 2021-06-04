@@ -30,7 +30,8 @@
       <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-06-04-model-comparison</link>
       <description>Using loo (approximate leave-one-out-cross-validation) and Bayesian R squared</description>
       <category>multilevel models</category>
-      <category>Bayes factor</category>
+      <category>LOO</category>
+      <category>R squared</category>
       <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-06-04-model-comparison</guid>
       <pubDate>Fri, 04 Jun 2021 00:00:00 +0000</pubDate>
       <media:content url="https://awellis.github.io/learnmultilevelmodels/posts/2021-06-04-model-comparison/distill-preview.png" medium="image" type="image/png" width="1248" height="768"/>

@@ -5,7 +5,8 @@ description: |
 date: 06-04-2021
 categories:
   - multilevel models
-  - Bayes factor
+  - LOO
+  - R squared
 author:
   - first_name: "Andrew"
     last_name: "Ellis"
@@ -371,17 +372,13 @@ The usual definition of $R^2$ (variance of the predicted values $\hat{y}$ divide
 However @gelmanRsquaredBayesianRegression2019a have created a Bayesian $R^2$, which is computed as 
 
 $$
-
 \frac{\text{Explained variance}}{\text{Explained variance} + \text{Residual variance}}
-
 $$ 
 
 The classical $R^2$ is given by 
 
 $$
-
 \frac{\text{var}(\hat{y})}{\text{var}(y)}
-
 $$ 
 
 ```{r}

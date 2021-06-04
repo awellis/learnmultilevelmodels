@@ -2659,7 +2659,7 @@ Show code
 </div>
 </details>
 </div>
-<p>We’ll look at a dataset containing popularity ratings (given by classmates) and various personal characteristics of pupils in different classes. The data are available from the<a href="https://multilevel-analysis.sites.uu.nl/intro-to-multilevel-analyses/">companion website</a> of a book on multilevel analysis <span class="citation" data-cites="MultilevelAnalysisTechniques">(<a href="#ref-MultilevelAnalysisTechniques" role="doc-biblioref"><span>“Multilevel <span>Analysis</span>: <span>Techniques</span> and <span>Applications</span>, <span>Third Edition</span>”</span> n.d.</a>)</span>. The code used here borrows heavily from one of the author’s <a href="https://www.rensvandeschoot.com/tutorials/brms-started/">website</a>.</p>
+<p>We’ll look at a dataset containing popularity ratings (given by classmates) and various personal characteristics of pupils in different classes. The data are available from the<a href="https://multilevel-analysis.sites.uu.nl/intro-to-multilevel-analyses/">companion website</a> of a book on multilevel analysis <span class="citation" data-cites="MultilevelAnalysisTechniques">(<a href="#ref-MultilevelAnalysisTechniques" role="doc-biblioref"><span>“Multilevel <span>Analysis</span>: <span>Techniques</span> and <span>Applications</span>, <span>Third Edition</span>”</span> n.d.</a>)</span>. The code used here borrows heavily from one of the authors’ <a href="https://www.rensvandeschoot.com/tutorials/brms-started/">website</a>.</p>
 <h2 id="download-data">Download data</h2>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2917,7 +2917,7 @@ Show code
 </div>
 </details>
 </div>
-<p>Now it’s time for some plot.</p>
+<p>Now it’s time for some plots.</p>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
@@ -3070,28 +3070,6 @@ Show code
 </code></pre>
 </div>
 </details>
-<pre><code>Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB \
-  foo.c
-clang -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Users/andrew/Library/R/4.1/library/Rcpp/include/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/RcppEigen/include/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/RcppEigen/include/unsupported&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/BH/include&quot; -I&quot;/Users/andrew/Library/R/4.1/library/StanHeaders/include/src/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/StanHeaders/include/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/RcppParallel/include/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Users/andrew/Library/R/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
-In file included from &lt;built-in&gt;:1:
-In file included from /Users/andrew/Library/R/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-In file included from /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Dense:1:
-In file included from /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Core:88:
-/Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
-namespace Eigen {
-^
-/Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
-namespace Eigen {
-               ^
-               ;
-In file included from &lt;built-in&gt;:1:
-In file included from /Users/andrew/Library/R/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-In file included from /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Dense:1:
-/Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
-#include &lt;complex&gt;
-         ^~~~~~~~~
-3 errors generated.
-make: *** [foo.o] Error 1</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -3108,7 +3086,7 @@ Show code
 <div class="fyi">
 <p>You can attempt to decide which models fit better than others by using <code>loo</code>.</p>
 </div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-MultilevelAnalysisTechniques" class="csl-entry" role="doc-biblioentry">
 <span>“Multilevel <span>Analysis</span>: <span>Techniques</span> and <span>Applications</span>, <span>Third Edition</span>.”</span> n.d. <span>Routledge &amp; CRC Press</span>. Accessed May 29, 2021. <a href="https://www.routledge.com/Multilevel-Analysis-Techniques-and-Applications-Third-Edition/Hox-Moerbeek-Schoot/p/book/9781138121362">https://www.routledge.com/Multilevel-Analysis-Techniques-and-Applications-Third-Edition/Hox-Moerbeek-Schoot/p/book/9781138121362</a>.
