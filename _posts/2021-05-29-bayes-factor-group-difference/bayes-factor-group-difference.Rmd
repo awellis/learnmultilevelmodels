@@ -1,7 +1,7 @@
 ---
-title: "Estimating a Bayes factor for a difference in means"
+title: "Estimating a Bayes factor using the Savage-Dickey density ratio"
 description: | 
-  Using Savage-Dickey and bridge sampling
+  For a simple mean comparison
 date: 05-29-2021
 categories:
   - multilevel models
@@ -27,6 +27,18 @@ output:
 
 
 
+
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(brms)
+library(tidybayes)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
 
 
 # Bayes factor for difference in means
@@ -56,7 +68,7 @@ t.test(rt ~ group,
        alternative = "less")
 ```
 
-We now want to perform a Bayesian model comparison using a Bayes factor.
+We now want to perform a Bayesian model comparison using a Bayes factor, in order to determine whether there is evidence that the ADHD group has a larger mean than the control group. However, we will start by estimating a Bayes factor for the undirected hypotheses that the group means differ.
 
 
 :::exercise
@@ -86,16 +98,15 @@ summary(m1)
 
 The population level effects `Intercept` and `groudadhd` represent the expected mean of the control group, and the expected difference between groups. The parameter has a mean of  $0.16$ a  $95%$ credible interval of  $[-0.04, 0.35]$.
 
+You can use the `hypothesis()` function to get the number of samples that are positive divided by the number of samples that are negative.
 
-
-In der Lösung von Übung 2 habe ich gezeigt, wie Sie mit der `hypothesis()` Funktion die Wahrscheinlichkeit erhalten, dass der Unterschied zwischen den Gruppen positiv ist.
 
 :::exercise
 **Exercise 2**
 
 a) Use the `hypothesis()` function to obtain the probability that the parameter is $>0$.
 
-b) Save the output of `hypothesis()` and plot it (using `plot()`.
+b) Save the output of `hypothesis()` and plot it using `plot()`.
 :::
 
 
@@ -106,10 +117,11 @@ h1 <- m1 %>%
 h1
 ```
 
+This returns the ratio of positive versus negative samples from the posterior distribution. THe evidence ratio `Evid.Ratio` represents the area under the posterior greater than zero divided by the area under the posterior less than zero. In this case the evidence ratio is $17.18$, which means that positive values are $17.18$ more probable than negative values, or the positive area is $17.18$ times greater than the negative area. 
 
-Wir untersuchen hier, welcher Anteil der Posterior Verteilung des Gruppenunterschieds `groupadhd` positiv ist. Das Evidence Ratio `Evid.Ratio` gibt den Anteil der Fläche unter der Kurve, welcher positiv ist, geteilt durch den negativen Anteil. Wir erhalten ein Evidence Ratio von $17.18$, was bedeutet, dass der positive Anteil der Fläche $17.18$ mal grösser ist als der negative Anteil.
+We can also compute the posterior probability that the value is positive. This means that we have to find the probability $p_+$ for which $\frac{p_+}{1-p_+} = 17.18$. This results in $p_+ = 17.18/(1 + 17.18) = 0.945$, which is given in the output under `Post.Prob`.
 
-Folglich ist es $17.18$ mal wahrscheinlicher, dass der Parameter positiv ist, als dass er negativ ist. Mit dieser Information können wir die Wahrscheinlichkeit, dass der Parameter positiv ist, berechnen. Wir müssen lediglich die Wahrscheinlichkeit $p_+$ finden, für die gilt: $\frac{p_+}{1-p_+} = 17.18$. Nach Umformen erhalten wir $p_+ = 17.18/(1 + 17.18) = 0.945$. DIes ist genau die Wahrscheinlichkeit, welhe wir unter `Post.Prob` erhalten.
+
 
 ```{r}
 p_pos <- 17.18 / (1 + 17.18)
@@ -123,11 +135,14 @@ plot(h1)
 ```
 
 :::exercise
-**Aufgabe 3**
+**Exercise 3**
 
-Schätzen Sie das Modell von Aufgabe 1 nochmals, aber diesmal mit dem zusätzlichen Argument `sample_prior = TRUE`. Speichern Sie dies als `m2`.
+Refit the model from exercise 1, but this time adding the argument `sample_prior = TRUE`, and saving as`m2`.
 :::
 
+
+
+## Two-sided 
 
 ```{r}
 m2 <- brm(rt ~ group,
@@ -137,26 +152,28 @@ m2 <- brm(rt ~ group,
           file = "models/exc4-m2")
 ```
 
+By including this argument we are telling `brms` to sample from both the prior and posterior distributions, which we need to compute the Savage-Dickey density ratio.
 
-Dies führt dazu, dass Sie neben den Samples aus den Posterior Verteilung auch Samples aus den Prior Verteilungen erhalten. Diese können Sie für den Unterschied zwischen den Gruppen so grafisch darstellen.
+We can plot both prior and posterior, i.e. what we believed about our parameter before seeing the data, and our updated belief after taking the data into account.
 
 ```{r}
 m2 %>% 
   mcmc_plot(c("b_groupadhd", "prior_b"))
 ```
-Wir sehen in dieser Grafik die Prior und die Posterior Verteilungen von `b_groupadhd`, also das, was wir anfangs geglaubt haben, und das, was wir glauben, nachdem wir die Daten berücksichtigt haben.
+
 
 
 :::exercise
-**Aufgabe 4**
+**Exercise 4**
 
-Testen Sie nun die Nullhypothese, dass der Gruppenunterschied Null sein sollte, mit der `hypothesis()` Funktion (Savage-Dickey Density Ratio). 
+Try to wuantify evidence for the null hypothesis that the group difference is zero, using the 
+ `hypothesis()` function to compute the Savage-Dickey density ratio. 
 
-- Speichern Sie den Ouput als `h2`.
-- Schauen Sie sich den Output an (mit `print(h2)` oder einfach `h2`.)
-- Evidence Ratio `Evid.Ratio` ist der Bayes Factor $BF_{01}$. Der Output der `hypothesis()` Funktion ist übrigens eine Liste; das `Evid.Ratio` kann mit `h2$hypothesis$Evid.Ratio` extrahiert werden. Speichern Sie es als `BF01`.
-- Erklären Sie in Worten, was der $BF_{01}$ bedeutet. Wofür haben Sie Evidenz gefunden?
-- Zeigen Sie auch den Bayes Factor $BF_{10}$ (Tipp: dies ist ganz einfach, wenn Sie $BF_{01}$ haben). Was sagt uns $BF_{10}$?
+
+- save the ouput as `h2`.
+- inspect the ouput using `print(h2)` or simply `h2`.
+- the evidence ratio `Evid.Ratio` is the Bayes factor $BF_{01}$. THe ouput of `hypothesis()` is a list;`Evid.Ratio` can be accessed under `h2$hypothesis$Evid.Ratio`. Save this as `BF01`.
+- Show the Bayes factor $BF_{10}$ (this is easy if you already have $BF_{01}$). What does $BF_{10}$ tell us?
 :::
 
 
@@ -170,9 +187,9 @@ h2
 BF01 <- h2$hypothesis$Evid.Ratio
 BF01
 ```
-Der Bayes Factor $BF_{01}$ gibt an, um wieviel wahrscheinlicher die Daten unter der Nullhypothese als unter der Alternativhypothese sind. Die Alternativhypothese entspricht unserem Prior, der besagt, dass der Unterschied zwischen den Gruppen mit 95% Sicherheit zwischen -2 und 2 liegt. Dieser Prior ist scheinbar nicht besonder gut, denn unter der Nullhypothese, welche behauptet, dass der Parameter genau 0 ist, sind die Daten ca. 2.6 mal wahrscheinlicher als unter der Alternativhypothese. Wir erhalten also hier Evidenz für die Nullhypothese, obwohl wir uns fas 95% sicher, dass der Parameter, wenn er geschätzt wird, positiv ist.
 
-Der Bayes Factor für die Alternativhypothse beträgt $0.38$.
+The Bayes factor $BF_{01}$ tells us how much more likely the data are under the null hypothesis than under the alternative hypothesis.. The alternative hypothesis corresponds to our prior on the group difference, which stated that we were 95% certain that the difference lies between -2 and 2. This prior is not very specific, and the resulting Bayes factor reflects this---under the null hypothesis, the data are approximately 2.6 times more likely than under the alternative hypothesis. Despite the fact that when estimating the parameter we are almost 95% certain that the parameter is positive, the Bayes factor provides evidence for the null hypothesis. The Bayes factor for the alternative hypothesis is $0.38$.
+
 
 
 ```{r}
@@ -180,25 +197,42 @@ BF10 <- 1/BF01
 BF10
 ```
 
+:::note
+We have to extremely careful when chooing prior distributions when estimating Bayes factors. Uninformative priors are useful when estimating parameters, but are a bad idea when estimating Bayes factors.
+:::
+
 
 
 :::exercise
-**Aufgabe 5**
+**Exercise 5**
 
-Stellen Sie den Ouput von `hypothesis()` mit `plot()` grafisch dar.
+Plot the output `hypothesis()` using the `plot()` method.
 :::
 
 
 ```{r echo=FALSE, include=FALSE}
 plot(h2)
 ```
-Wir sehen, dass der WErt 0 unter dem Posterior eine höhere Wahrscheinlichkeit als unter dem Prior hat.
 
-:::puzzle
-Optionale Aufgabe: Wie erhalten Sie einen grösseren Bayes Factor für die Alternativhypothese $BF_{10}$?
-:::
+The density evaluated at 0 is higher under the posterior than under prior, leading to the BF for the null.
 
-Wir können versuchen, einen sinnvolleren Prior für unsere Alternativhypothese zu defnieren. Als erstes könnten wir, wenn Informationen aus vorherigen Studien haben, erwarten dass der Effekt klein sein. Dies berücksichtigen wir mit einer kleineren Standardabweichung von $0.1$. Ausserdem erwarten wir, dass der Effekt positiv wird. Dies können wir ausdrücken, in dem wir eine Untergrenze von 0 für die Prior Verteilung setzen (lower bound). Wenn wir beides komnbinieren, erhalten wir folgenden Prior: `prior(normal(0, 0.1), lb = 0)`. Dies enstpricht einer halben Normalverteilung, mit einer Standardabweichung von $0.1$. 
+
+
+## One-sided
+
+Now we will attempt to estimate the Bayes factor $BF_{10}$ for the directed hypothesis that the mean of the ADHD group is greater than that of the control group.
+
+This hypothesis states that the group difference is constraine to be positive. Therefore, we will use a lower bound on our prior distribution. Furthermore, we expect the difference to be small (based on previous research), so we use a small standar deviation of $0.1$. Combining both of these beliefs, we can express our prior as  `prior(normal(0, 0.1), lb = 0)`. This corresponds to a folded normal distribution, or a half-normal.
+
+```{r}
+tibble(x = seq(-0.5, 1, by = 0.01),
+       y = if_else(x >= 0,  dnorm(x, 0, 0.1), 0)) |> 
+  ggplot(aes(x, abs(y))) +
+  geom_line(size = 1.5) +
+  xlab("") + ylab("") +
+  ggtitle("Half-normal distribution")
+```
+
 
 
 
@@ -210,12 +244,17 @@ m3 <- brm(rt ~ group,
           file = "models/exc4-m3")
 ```
 
-Wir können wieder Prior und Posterior grafisch darstellen. Der Prior erlaubt jetzt nur noch positive Werte.
+
+We plot both prior and posterior, as before. THe prior now has zero density for values $<0$.
+
+
 
 ```{r}
 m3 %>% 
   mcmc_plot(c("b_groupadhd", "prior_b"))
 ```
+
+Now we can use the same hypothesis as before---we are now comparing the null to an alternative that states that the group difference is small, but positive.
 
 ```{r}
 h3 <- m3 %>% 
@@ -223,22 +262,23 @@ h3 <- m3 %>%
 h3
 ```
 
-
-Wir erhalten nun einen Bayes Factor von $0.42 für die Nullhypothese. Dies bedeutet, dass nun die Daten unter der Alternativhypothese wahrscheinlicher sind. 
-
-
+The Bayes factor is now $0.42$ in favour of the null hypothesis. This means that the data are $0.42$ times as likely under the null. 
 
 ```{r}
 BF01alt <- h3$hypothesis$Evid.Ratio
 BF01alt
 ```
 
-Dies ist einfacher als $BF_{10}$ auszudrücken:
+This is better expresssed as a Bayes factor in favour of the alternative, $BF_{10}$.
 
 ```{r}
 BF10alt <- 1/BF01alt
 BF10alt
 ```
-Wir erhalten nun also einen Bayes Factor von $2.36$ für die Alternativhypothese. 
 
-Dies illustriert, dass ein Bayes Factor ausdrückt, wie gut ein e Prior Verteilung die Daten vorhersagen kann. Hypothesen entpsrechen im Bayesianischen Kontext Prior Verteilungen, und folglich müssen wir mit unseren Priors genau unsere Hypothesen ausdrücken können. Der zweite Bayes Factor $BF_{10} = 2.36$ entspricht also unserer Erwartung, dass der Gruppenunterschied klein aber positiv ist.
+Now the data are $2.36$ more likely to have occurred under the alternative than under the null hypothesis.
+
+:::note
+The Bayes factor tells us how well a model's prior distributions predicted the data. The Bayes factor is this related to the prior predictive distribution. Our hypotheses correspond to prior distributions on the parameters, and thus it is extremely important that our priors reflect our hypotheses.
+:::
+

@@ -12,12 +12,34 @@
       <link>https://awellis.github.io/learnmultilevelmodels</link>
     </image>
     <generator>Distill</generator>
-    <lastBuildDate>Sat, 29 May 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 04 Jun 2021 00:00:00 +0000</lastBuildDate>
     <item>
-      <title>Estimating a Bayes factor for a difference in means</title>
+      <title>Estimating a Bayes factor using bridge sampling</title>
+      <dc:creator>Andrew Ellis</dc:creator>
+      <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-06-03-bayes-factor-bridgesampling</link>
+      <description>A general method for estimating Bayes factors</description>
+      <category>multilevel models</category>
+      <category>Bayes factor</category>
+      <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-06-03-bayes-factor-bridgesampling</guid>
+      <pubDate>Fri, 04 Jun 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://awellis.github.io/learnmultilevelmodels/posts/2021-06-03-bayes-factor-bridgesampling/distill-preview.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
+    <item>
+      <title>Model comparison</title>
+      <dc:creator>Andrew Ellis</dc:creator>
+      <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-06-04-model-comparison</link>
+      <description>Using loo (approximate leave-one-out-cross-validation) and Bayesian R squared</description>
+      <category>multilevel models</category>
+      <category>Bayes factor</category>
+      <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-06-04-model-comparison</guid>
+      <pubDate>Fri, 04 Jun 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://awellis.github.io/learnmultilevelmodels/posts/2021-06-04-model-comparison/distill-preview.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
+    <item>
+      <title>Estimating a Bayes factor using the Savage-Dickey density ratio</title>
       <dc:creator>Andrew Ellis</dc:creator>
       <link>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-29-bayes-factor-group-difference</link>
-      <description>Using Savage-Dickey and bridge sampling</description>
+      <description>For a simple mean comparison</description>
       <category>multilevel models</category>
       <category>Bayes factor</category>
       <guid>https://awellis.github.io/learnmultilevelmodels/posts/2021-05-29-bayes-factor-group-difference</guid>

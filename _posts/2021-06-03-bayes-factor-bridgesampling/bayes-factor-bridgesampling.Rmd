@@ -1,0 +1,502 @@
+---
+title: "Estimating a Bayes factor using bridge sampling"
+description: | 
+  A general method for estimating Bayes factors
+date: 06-04-2021
+categories:
+  - multilevel models
+  - Bayes factor
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Cognitive psychology, perception & methods, Univerity of Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/bayes-factor-bridgesampling.html
+bibliography: ../../bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+      css: ../../css/style.css
+---
+
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+
+# Bayes factor using bridge sampling
+
+While the Savage-Dickey method is very useful for nested models, it is restricted to model comparisons between nested models, and it is not the most robust method.
+
+We will look at an alternative method for obtaining Bayes factor, one that is both more reliable, and can be applied to model comparisons between non-nested models (as long as they are fit to the same data). 
+
+
+```{r}
+library(tidyverse)
+library(brms)
+```
+
+We will first simulate a dataset, using the function we defined in session 2.
+
+
+```{r code_folding = TRUE}
+simulate_treatment <- function(a = 3.5,
+                              b = -1,
+                              sigma_a = 1,
+                              sigma_b = 0.8,
+                              rho = -0.7,
+                              n_subjects = 10,
+                              n_trials = 20,
+                              sigma = 0.5) {
+
+    # Ccombine the terms
+    mu <- c(a, b)
+    cov_ab <- sigma_a * sigma_b * rho
+    SD  <- matrix(c(sigma_a^2, cov_ab,
+                       cov_ab, sigma_b^2), ncol = 2)
+
+   #  sigmas <- c(sigma_a, sigma_b)          # standard deviations
+   #  rho <- matrix(c(1, rho,             # correlation matrix
+   #                 rho, 1), nrow = 2)
+   # 
+   # # now matrix multiply to get covariance matrix
+   # SD <- diag(sigmas) %*% rho %*% diag(sigmas)
+
+    varying_effects <-
+        MASS::mvrnorm(n_subjects, mu, SD) |>
+        # as_tibble(.name_repair = "unique") |>
+        data.frame() |>
+        purrr::set_names("a_j", "b_j")
+
+    d_linpred <-
+        varying_effects |>
+        mutate(subject  = 1:n_subjects) |>
+        expand(nesting(subject, a_j, b_j), post = c(0, 1)) |>
+        mutate(mu = a_j + b_j * post,
+               sigma = sigma) |>
+        mutate(treatment = ifelse(post == 0, "pre", "post"),
+               treatment = factor(treatment, levels = c("pre", "post")),
+               subject = as_factor(subject))
+
+    d <- d_linpred |>
+        slice(rep(1:n(), each = n_trials)) |>
+        mutate(response = rnorm(n = n(), mean = mu, sd = sigma))
+
+   d
+}
+```
+
+```{r code_folding = TRUE}
+plot_linpred <- function(d, violin = FALSE) {
+  
+  d_linpred <- d |>
+  group_by(subject, treatment) |> distinct(mu, .keep_all = TRUE)
+  
+  p <- d_linpred |>
+    ggplot(aes(x = treatment, y = mu))
+  
+  if (isTRUE(violin)) {
+  p <- p + 
+      geom_violin(aes(x = treatment, y = response,
+                          fill = treatment), 
+                  alpha = 0.5,
+                  data = d) +
+      geom_jitter(aes(x = treatment, y = response,
+                          color = treatment), 
+                  width = 0.1, size = 2,
+                  data = d)
+  }
+  
+  p <- p +
+    geom_line(aes(group = 1), color = "#8B9DAF", size = 1, linetype = 3) +
+    geom_point(aes(fill = treatment), 
+               shape = 21, 
+               colour = "black", 
+               size = 4, 
+               stroke = 2) +
+    scale_fill_brewer(type = "qual") +
+    scale_color_brewer(type = "qual") +
+    coord_cartesian(ylim = c(0, 8)) +
+    ylab("Response") +
+    theme(legend.position = "none",
+          axis.ticks.x    = element_blank()) +
+    facet_wrap(~ subject) +
+  ggtitle("Linear predictor")
+  
+  p
+}
+```
+
+We will create a hierarchical dataset, consisting of 30 subjects, measured at two time points (with 20 trials per time point). 
+
+The parameters used to generate the data are:
+
+```{r}
+params <- tribble(~Parameter, ~`Default value`, ~Desccription,
+                  "a", 2, "average pre-treatment effect (intercepts)",
+                  "b", 0.5, "average difference between pre and post",
+                  "sigma_a", 1, "std dev in intercepts",
+                  "sigma_b", 2, "std dev in differences (slopes)",
+                  "rho", -0.2, "correlation between intercepts and slopes",
+                  "sigma", 0.5, "residual standard deviation") 
+params |> 
+    kableExtra::kbl() |> 
+    kableExtra::kable_paper("hover", full_width = T)
+```
+These are the parameter we would like to recover using our model.
+
+
+
+```{r}
+set.seed(867)
+d <- simulate_treatment(n_subjects = 30,
+                        a = 2, b = 0.5,
+                        sigma_a = 1, sigma_b = 1.5,
+                        rho = -0.2,
+                        sigma = 0.5,
+                        n_trials = 20)
+```
+
+
+
+We can plot 12 random subjects to get an idea of what the true means look like.
+
+```{r}
+random_subjects <- sample(levels(d$subject), 12)
+d |> 
+  filter(subject %in% random_subjects) |> plot_linpred()
+```
+
+We will now attempt to estimate the parameter, using the model given by
+
+\begin{align*}
+\text{response}_i & \sim \operatorname{Normal}(\mu_i, \sigma) \\
+\mu_i         & = \alpha_{\text{subject}_i} + \beta_{\text{subject}_i} \text{treatment}_i \\
+\begin{bmatrix} \alpha_\text{subject} \\ \beta_\text{treatment} \end{bmatrix} & \sim \text{MVNormal} \left (\begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \mathbf{S}  \right ) \\
+\mathbf S     & = \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \mathbf R \begin{bmatrix} \sigma_\alpha & 0 \\ 0 & \sigma_\beta \end{bmatrix} \\
+\end{align*}
+
+We are assuming that our respone variable is conditionally normally distributed, with mean $\mu$ and standard deviation $\sigma$. We will predict the mean using a linear model, i.e. as a function of the treatments (pre and post). 
+
+The treatment variable is a factor with two levels, so we can use treamtent coding (the default in R) to give us an intercept representing the reference category, and an indicator variable representing the difference between the reference and non-reference categories.
+
+```{r}
+levels(d$treatment)
+```
+The first level of the variable will automatiaclly be used as the reference.
+
+```{r}
+contrasts(d$treatment)
+```
+In the output of the `contrasts()` function the column `post` shows the indicator variable that we will get, and the rows show the values it takes when the trial is from the pre or post condition, respectively.
+
+Our formula will look like this: `response ~ 1 + treatment`. However, don't simply want to estimate the avarage effect using a complete pooling model---we want to account for the fatc that every subject has their of mean response in the pre condition, and their own effect of the treatment, i.e. difference between pre and post treatment conditions. 
+
+
+We know (because we generated the data), that the average response in the pre condition is $\alpha = 2$ and the average difference between pre and post is $\beta = 0.5$, but if we look at the individual subjects, each one has their own effects $a_j$ and $b_j$. We want to simultaneously estimate the average effects, and the individual effects.
+
+
+```{r}
+d |> 
+  group_by(subject) |> slice_head(n = 1)
+```
+
+This is what the lines 
+
+$$
+\mu_i = \alpha_{\text{subject}_i} + \beta_{\text{subject}_i} \text{treatment}_i 
+$$
+
+\begin{align*}
+\begin{bmatrix} \alpha_\text{subject} \\ \beta_\text{treatment} \end{bmatrix} & \sim \text{MVNormal} \left (\begin{bmatrix} \alpha \\ \beta \end{bmatrix}, \mathbf{S}  \right ) 
+\end{align*}
+
+are referring to. Each set of subject=specific $a_j$ and $b_j$ parameters is jointly drawn from a multivariate normal, with average effects $\alpha$ and $\beta$, and a covariance matrix $\Sigma$. In diagonal, $\Sigma$ contains the standard deviations, which tell us how much variation there is between subjects around the average effects. Lastly, we can estimate the correlation between $a_j$ and $b_j$; a negative correlation, for eaxmple, would imply that a large value in the pre condition would be associated with a smaller difference between pre and post.
+
+
+The equations can be expressed as an R formula
+
+```{r}
+response ~ treatment + (treatment | subject)
+```
+
+
+## Using maximum likelihood
+
+If we were doing frequentist maximum likelook estimation, we would use this formula with the `lmer()` function from the `lme4` package.
+
+```{r}
+fit_lme4 <- lme4::lmer(response ~ treatment + (treatment | subject),
+           data = d, REML = TRUE)
+summary(fit_lme4)
+```
+
+
+:::exercise
+Can you identify all the parameters in the output, and find the corresponding true parameter values?
+:::
+
+
+
+:::note
+If you want p-values, you can use `lmerTest::lmer()`, because `lme4` doesn't report p-values.
+:::
+
+```{r}
+fit_lmer <- lmerTest::lmer(response ~ treatment + (treatment | subject),
+           data = d)
+summary(fit_lmer)
+```
+
+
+## Using Bayesian inference to obtain posteriors
+
+Since we are Bayesian now, we would like to obtain posterior distributions for all the parameters. This means that we need priors. Let's ask brms what priors we can set in this model, and what the defaults are.
+
+```{r}
+get_prior(response ~ treatment + (treatment | subject),
+          data = d) |> 
+  as_tibble() |> select(1:4)
+
+```
+The defaults are acceptable, except for the flat prior of the average difference  between pre and post, `treatmentpost`. This is not a good idea when estimating the parameter, but we could estimate the parameter from the data. When the goal is to obtain a Bayes factor, however, a flat prior makes it impossible to sample from the prior, and we need to set an informative prior.
+
+\begin{align*}
+\alpha        & \sim \operatorname{Student}(3, 2.7, 2.5) \\
+\beta         & \sim \operatorname{Uniform}(-\infty, \infty) \\
+\sigma        & \sim \operatorname{Half-Student}(3, 0, 2.5) \\
+\sigma_\alpha & \sim \operatorname{Half-Student}(3, 0, 2.5) \\
+\sigma_\beta  & \sim \operatorname{Half-Student}(3, 0, 2.5) \\
+\mathbf R     & \sim \operatorname{LKJcorr}(1)
+\end{align*}
+
+We well therefore set a `normal(0, 1)` prior on the difference. This expresses our prior belief that the difference will lie between -2 and 2 with 95% certainty. 
+
+:::puzzle
+Do you think this is a good prior?
+:::
+
+
+Additionallu, we will set an `LKJ(2)` prior on the correlation between intercepts and slopes, meaning that we expect the correlation to be centred at 0, and favouring smaller values, rather than being uniform between $[-1, 1]$.
+
+```{r}
+priors <- prior(normal(0, 1), class = b) +
+  prior(lkj(2), class = cor)
+```
+
+
+\begin{align*}
+\alpha        & \sim \operatorname{Student}(3, 2.7, 2.5) \\
+\beta         & \sim \operatorname{Normal}(0, 11) \\
+\sigma        & \sim \operatorname{HalfCauchy}(0, 1) \\
+\sigma_\alpha & \sim \operatorname{Half-Student}(3, 0, 2.5) \\
+\sigma_\beta  & \sim \operatorname{Half-Student}(3, 0, 2.5) \\
+\mathbf R     & \sim \operatorname{LKJcorr}(2)
+\end{align*}
+
+
+Now we are ready to fit the model. We will now make sure that we save all the parameters using `save_pars = save_pars(all = TRUE),`, even those that are not save by default. This is necessary if we want to estimate the marginal likelhood using bridge sampling. The other thing is that now need to run the model for longer, i.e. we need many more iterations. A rule of thumb is a 10 fold increase in the number of iterations, but here we will settle for 10'000.
+
+```{r}
+fit_twosided <- brm(response ~ treatment + (treatment | subject),
+                    prior = priors,
+                    data = d,
+                    save_pars = save_pars(all = TRUE),
+                    iter = 1e4,
+                    file = "models/fit_twosided",
+                    file_refit = "on_change")
+
+```
+
+
+
+```{r}
+summary(fit_twosided)
+```
+
+:::exercise
+Can you identify all the parameters?
+:::
+
+
+```{r}
+fixef(fit_twosided)
+```
+
+
+```{r}
+mcmc_plot(fit_twosided)
+```
+
+```{r}
+conditional_effects(fit_twosided, dpar = "mu")
+```
+
+
+
+## Bayes factor
+
+The posterior distribution of the parameter of interest gives us a 95% credible interval that is positive, but now we want to quantify evidence for the altervative hypothesis.
+
+The next step is to specify an explicit null model. In this case, our null model is nested within the alternative, with the parameter representing the difference between treatments fixed to zero.
+
+We can specify this model (with the varying treatment effects)
+
+
+```{r}
+fit_null_varying_effects <- brm(response ~ 1 + (treatment | subject),
+                    prior = prior(lkj(2), class = cor),
+                    data = d,
+                    save_pars = save_pars(all = TRUE),
+                    iter = 1e4,
+                    file = "models/fit_null_varying",
+                    file_refit = "on_change")
+
+```
+
+
+and the model without botj population-level and varying treatment effects.
+
+```{r}
+fit_null <- brm(response ~ 1 + (1 | subject),
+                    data = d,
+                    save_pars = save_pars(all = TRUE),
+                    iter = 1e4,
+                    file = "models/fit_null",
+                    file_refit = "on_change")
+
+```
+
+
+We can now obtain the marginal log-likelihoods for these models using the `bridge_sampler()` function.
+
+```{r}
+margLogLik_twosided <- bridge_sampler(fit_twosided, 
+                                      silent = TRUE)
+
+margLogLik_null_varying_effects <- bridge_sampler(fit_null_varying_effects, 
+                                                  silent = TRUE)
+
+margLogLik_null <- bridge_sampler(fit_null, 
+                                    silent = TRUE)
+```
+
+
+
+Bayes factors can then be computed manually, or using the `bayes_factor()` function.
+
+
+```{r}
+exp(margLogLik_twosided$logml - margLogLik_null_varying_effects$logml)
+```
+
+
+```{r}
+BF_twosided_null <- bayes_factor(margLogLik_twosided, margLogLik_null_varying_effects)
+
+BF_twosided_null
+```
+
+This gives us a Bayes factor in favour of the model that includes the difference between treatments of approximately 3.33.
+
+You can also directly compute the Bayes factor without the intermediate step.
+
+```{r eval=FALSE, include=TRUE}
+bayes_factor(fit_twosided, fit_null_varying_effects)
+```
+
+<aside>
+The Bayes factors obained via this method will vary, because they are estimated using a Monte Carlo sampling technique.
+</aside>
+
+
+
+
+## Savage-Dickey
+
+The same Bayes factor can be obtained via the Savage-Dickey density ration method:
+
+```{r}
+fit_twosided_SD <- brm(response ~ treatment + (treatment | subject),
+                    prior = priors,
+                    data = d,
+                    sample_prior = TRUE,
+                    iter = 2000,
+                    file = "models/fit_twosided_SD",
+                    file_refit = "on_change")
+```
+
+```{r}
+BF_01 <- fit_twosided_SD |> hypothesis("treatmentpost = 0")
+BF_10 <- 1/BF_01$hypothesis$Evid.Ratio
+BF_10
+```
+
+This results in a  Bayes factor that is very similar to the one obtained via bridge sampling.
+
+
+
+## Traditional methods
+
+For comparison, let's look at traditional ways of analyzing these data. The most common way to do this would be to perfom the data analysis at two levels. At the first level, we sumarise the data per subject and condition, aggregating over trials (Here we are ignoring our uncertainty in the subject means).
+
+```{r}
+d_sum <- d |> 
+  group_by(subject, treatment) |> 
+  summarise(response = mean(response)) 
+
+d_sum
+```
+```{r eval=FALSE, include=FALSE}
+d_sum_diffs <- d_sum |> 
+  pivot_wider(names_from = treatment, values_from = response) |> 
+  mutate(diff = post - pre)
+ 
+d_sum_diffs 
+```
+
+Subsequently, we perform a statistical test at the level 2, that at the group level, using the subject-specific means.
+
+```{r}
+t.test(response ~ treatment, data = d_sum, var.equal = FALSE)
+```
+
+```{r}
+fit_ols <- lm(response ~ treatment, data = d_sum)
+summary(fit_ols)
+```
+```{r}
+summary(fit_lmer)
+```
+
+
+## Exercise
+
+:::exercise
+Follow all the steps shown above, but vary the parameters of the data generating function. You can set the true difference between treatment conditions to be zero, for example, or increase the standard deviation of the subjects' difference parameters.
+:::
+
+For example, setting the true difference to be zero (shown here for only 12 subjects---you should use more).
+
+```{r}
+dex1 <- simulate_treatment(b = 0, n_subjects = 12)
+plot_linpred(dex1)
+```
+
+Setting the true difference to be zero and increasing the variability between subjects.
+
+```{r}
+dex2 <- simulate_treatment(b = 0, sigma_b = 2.5, n_subjects = 12)
+plot_linpred(dex2)
+```

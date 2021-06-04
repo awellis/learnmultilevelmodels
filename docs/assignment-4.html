@@ -124,7 +124,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","date","author","citation_url","bibliography","output"]}},"value":[{"type":"character","attributes":{},"value":["Assignment 4"]},{"type":"character","attributes":{},"value":["Effect of tDCS stimulation on episodic memory\n"]},{"type":"character","attributes":{},"value":["05-28-2021"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["first_name","last_name","url","affiliation","affiliation_url","orcid_id"]}},"value":[{"type":"character","attributes":{},"value":["Andrew"]},{"type":"character","attributes":{},"value":["Ellis"]},{"type":"character","attributes":{},"value":["https://github.com/awellis"]},{"type":"character","attributes":{},"value":["Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern"]},{"type":"character","attributes":{},"value":["https://www.kog.psy.unibe.ch"]},{"type":"character","attributes":{},"value":["0000-0002-2788-936X"]}]}]},{"type":"character","attributes":{},"value":["https://awellis.github.io/learnmultilevelmodels/asssignment-4.html"]},{"type":"character","attributes":{},"value":["./bibliography.bib"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc","toc_float","toc_depth","code_folding","self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[false]},{"type":"logical","attributes":{},"value":[false]}]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","date","author","citation_url","bibliography","output"]}},"value":[{"type":"character","attributes":{},"value":["Assignment 4"]},{"type":"character","attributes":{},"value":["Effect of tDCS stimulation on episodic memory\n"]},{"type":"character","attributes":{},"value":["05-28-2021"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["first_name","last_name","url","affiliation","affiliation_url","orcid_id"]}},"value":[{"type":"character","attributes":{},"value":["Andrew"]},{"type":"character","attributes":{},"value":["Ellis"]},{"type":"character","attributes":{},"value":["https://github.com/awellis"]},{"type":"character","attributes":{},"value":["Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern"]},{"type":"character","attributes":{},"value":["https://www.kog.psy.unibe.ch"]},{"type":"character","attributes":{},"value":["0000-0002-2788-936X"]}]}]},{"type":"character","attributes":{},"value":["https://awellis.github.io/learnmultilevelmodels/asssignment-4.html"]},{"type":"character","attributes":{},"value":["./bibliography.bib"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc","toc_float","toc_depth","code_folding","self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[false]}]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2579,7 +2579,6 @@ Information
 <input id="distill-search" class="nav-search hidden" type="text" placeholder="Search..."/>
 </div>
 <div class="nav-right">
-<span class="nav-dropdown-header">Documents</span>
 <div class="nav-dropdown">
 <button class="nav-dropbtn">
 Assignments
@@ -2593,7 +2592,6 @@ Assignments
 <a href="assignment-4.html">Assignment 4: tDCS and memory</a>
 </div>
 </div>
-<span class="nav-dropdown-header">Solutions</span>
 <div class="nav-dropdown">
 <button class="nav-dropbtn">
 Slides
@@ -2638,11 +2636,22 @@ Slides
 <nav class="l-text toc figcaption" id="TOC">
 <h3>Contents</h3>
 <ul>
-<li><a href="#effect-of-tdcs-on-memory">Effect of tDCS on memory</a></li>
+<li><a href="#effect-of-tdcs-on-memory">Effect of tDCS on memory</a>
+<ul>
+<li><a href="#linear-model">Linear model</a></li>
+<li><a href="#null-model">Null model</a></li>
+<li><a href="#model-comparison-using-loo">Model comparison using loo</a></li>
+<li><a href="#model-comparison-via-bayes-factor">Model comparison via Bayes factor</a></li>
+<li><a href="#control-for-age">Control for age</a></li>
+</ul></li>
 </ul>
 </nav>
 </div>
 <div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/paul-buerkner/brms'>brms</a></span><span class='op'>)</span>
@@ -2651,6 +2660,7 @@ Slides
             <span class='fu'>theme</span><span class='op'>(</span>panel.grid <span class='op'>=</span> <span class='fu'>element_blank</span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
 </code></pre>
 </div>
+</details>
 </div>
 <h1 id="effect-of-tdcs-on-memory">Effect of tDCS on memory</h1>
 <p>You are going to analyze data from a study in which 34 elderly subjects were given anodal (activating) tDCS over their left tempero-parietal junction (TPJ). Subjects were instructed to learn association between images and pseudo-words (data were inspired by <span class="citation" data-cites="antonenkoTDCSinducedEpisodicMemory2019"><a href="#ref-antonenkoTDCSinducedEpisodicMemory2019" role="doc-biblioref">Antonenko et al.</a> (<a href="#ref-antonenkoTDCSinducedEpisodicMemory2019" role="doc-biblioref">2019</a>)</span>).</p>
@@ -2665,16 +2675,26 @@ correct: accuracy per block
 rt: mean RTs for correct responses</code></pre>
 <p>You are mainly interested in whether recall ability is better during the TPJ stimulation condition than during sham.</p>
 <div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>d</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span><span class='st'>"https://raw.githubusercontent.com/kogpsy/neuroscicomplab/main/data/tdcs-tpj.csv"</span><span class='op'>)</span>
 </code></pre>
 </div>
+</details>
 </div>
 <div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>glimpse</span><span class='op'>(</span><span class='va'>d</span><span class='op'>)</span>
 </code></pre>
 </div>
+</details>
 <pre><code>Rows: 340
 Columns: 6
 $ subject     &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, …
@@ -2685,26 +2705,371 @@ $ correct     &lt;dbl&gt; 0.8, 0.4, 0.4, 0.4, 0.6, 0.4, 0.4, 0.6, 0.6, 0.8…
 $ rt          &lt;dbl&gt; 1.650923, 1.537246, 1.235620, 1.671189, 1.408333…</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>d</span> <span class='op'>&lt;-</span> <span class='va'>d</span> <span class='op'>%&gt;%</span> 
   <span class='fu'>mutate</span><span class='op'>(</span><span class='fu'>across</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>subject</span>, <span class='va'>stimulation</span>, <span class='va'>block</span><span class='op'>)</span>, <span class='op'>~</span><span class='fu'>as_factor</span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   <span class='fu'>drop_na</span><span class='op'>(</span><span class='op'>)</span>
 </code></pre>
 </div>
+</details>
 </div>
 <div class="exercise">
-<ul>
+<ol type="1">
 <li><p>specify a linear model</p></li>
 <li><p>specify a null model</p></li>
+<li><p>compare models using approximate leave-one-out cross-validation</p></li>
 <li><p>estimate a Bayes factor for the effect of TPJ stimulation</p>
 <ul>
 <li>using the Savage-Dickey density ratio test</li>
 <li>using the bridge sampling method</li>
 </ul></li>
 <li><p>control for subjects’ age</p></li>
-</ul>
+</ol>
 </div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h2 id="linear-model">Linear model</h2>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>fit1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/brm.html'>brm</a></span><span class='op'>(</span><span class='va'>correct</span> <span class='op'>~</span> <span class='va'>stimulation</span> <span class='op'>+</span> <span class='op'>(</span><span class='va'>stimulation</span><span class='op'>|</span> <span class='va'>subject</span><span class='op'>)</span>,
+            prior <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/set_prior.html'>prior</a></span><span class='op'>(</span><span class='fu'>normal</span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>)</span>, class <span class='op'>=</span> <span class='va'>b</span><span class='op'>)</span>,
+            data <span class='op'>=</span> <span class='va'>d</span>,
+            file <span class='op'>=</span> <span class='st'>"models/ass4-1"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>fit1</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code> Family: gaussian 
+  Links: mu = identity; sigma = identity 
+Formula: correct ~ stimulation + (stimulation | subject) 
+   Data: d (Number of observations: 315) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject (Number of levels: 34) 
+                              Estimate Est.Error l-95% CI u-95% CI
+sd(Intercept)                     0.04      0.02     0.00     0.08
+sd(stimulationTPJ)                0.03      0.02     0.00     0.08
+cor(Intercept,stimulationTPJ)    -0.12      0.56    -0.96     0.93
+                              Rhat Bulk_ESS Tail_ESS
+sd(Intercept)                 1.00     1063     1691
+sd(stimulationTPJ)            1.00     1773     1704
+cor(Intercept,stimulationTPJ) 1.00     2638     2093
+
+Population-Level Effects: 
+               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+Intercept          0.43      0.02     0.39     0.46 1.00     4370
+stimulationTPJ     0.10      0.02     0.05     0.14 1.00     5662
+               Tail_ESS
+Intercept          2819
+stimulationTPJ     2553
+
+Family Specific Parameters: 
+      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sigma     0.19      0.01     0.18     0.21 1.00     4488     2904
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/brms/man/mcmc_plot.brmsfit.html'>mcmc_plot</a></span><span class='op'>(</span><span class='va'>fit1</span>, <span class='st'>"b_"</span>, type <span class='op'>=</span> <span class='st'>"areas"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<p><img src="assignment-4_files/figure-html5/unnamed-chunk-7-1.png" width="624" /></p>
+</div>
+<h2 id="null-model">Null model</h2>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>fit2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/brm.html'>brm</a></span><span class='op'>(</span><span class='va'>correct</span> <span class='op'>~</span> <span class='fl'>1</span> <span class='op'>+</span> <span class='op'>(</span><span class='va'>stimulation</span><span class='op'>|</span> <span class='va'>subject</span><span class='op'>)</span>,
+            data <span class='op'>=</span> <span class='va'>d</span>,
+            file <span class='op'>=</span> <span class='st'>"models/ass4-2"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<h2 id="model-comparison-using-loo">Model comparison using loo</h2>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>loo_fit_1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/loo.brmsfit.html'>loo</a></span><span class='op'>(</span><span class='va'>fit1</span><span class='op'>)</span>
+<span class='va'>loo_fit_1</span>
+</code></pre>
+</div>
+</details>
+<pre><code>
+Computed from 4000 by 315 log-likelihood matrix
+
+         Estimate   SE
+elpd_loo     62.3 11.3
+p_loo        14.4  1.1
+looic      -124.7 22.6
+------
+Monte Carlo SE of elpd_loo is 0.1.
+
+All Pareto k estimates are good (k &lt; 0.5).
+See help(&#39;pareto-k-diagnostic&#39;) for details.</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>loo_fit_2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/loo.brmsfit.html'>loo</a></span><span class='op'>(</span><span class='va'>fit2</span><span class='op'>)</span>
+<span class='va'>loo_fit_2</span>
+</code></pre>
+</div>
+</details>
+<pre><code>
+Computed from 4000 by 315 log-likelihood matrix
+
+         Estimate   SE
+elpd_loo     54.3 10.8
+p_loo        17.0  1.3
+looic      -108.5 21.7
+------
+Monte Carlo SE of elpd_loo is 0.1.
+
+Pareto k diagnostic values:
+                         Count Pct.    Min. n_eff
+(-Inf, 0.5]   (good)     313   99.4%   1428      
+ (0.5, 0.7]   (ok)         2    0.6%   1509      
+   (0.7, 1]   (bad)        0    0.0%   &lt;NA&gt;      
+   (1, Inf)   (very bad)   0    0.0%   &lt;NA&gt;      
+
+All Pareto k estimates are ok (k &lt; 0.7).
+See help(&#39;pareto-k-diagnostic&#39;) for details.</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/brms/man/loo_compare.brmsfit.html'>loo_compare</a></span><span class='op'>(</span><span class='va'>loo_fit_1</span>, <span class='va'>loo_fit_2</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>     elpd_diff se_diff
+fit1  0.0       0.0   
+fit2 -8.1       3.7   </code></pre>
+</div>
+<h2 id="model-comparison-via-bayes-factor">Model comparison via Bayes factor</h2>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>fit1_bf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/brm.html'>brm</a></span><span class='op'>(</span><span class='va'>correct</span> <span class='op'>~</span> <span class='va'>stimulation</span> <span class='op'>+</span> <span class='op'>(</span><span class='va'>stimulation</span><span class='op'>|</span> <span class='va'>subject</span><span class='op'>)</span>,
+            prior <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/set_prior.html'>prior</a></span><span class='op'>(</span><span class='fu'>normal</span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>)</span>, class <span class='op'>=</span> <span class='va'>b</span><span class='op'>)</span>,
+            data <span class='op'>=</span> <span class='va'>d</span>,
+            iter <span class='op'>=</span> <span class='fl'>1e4</span>,
+            save_pars <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/save_pars.html'>save_pars</a></span><span class='op'>(</span>all <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+            file <span class='op'>=</span> <span class='st'>"models/ass4-bf_1"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>fit2_bf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/brm.html'>brm</a></span><span class='op'>(</span><span class='va'>correct</span> <span class='op'>~</span> <span class='fl'>1</span> <span class='op'>+</span> <span class='op'>(</span><span class='va'>stimulation</span><span class='op'>|</span> <span class='va'>subject</span><span class='op'>)</span>,
+            prior <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/set_prior.html'>prior</a></span><span class='op'>(</span><span class='fu'>normal</span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>)</span>, class <span class='op'>=</span> <span class='va'>b</span><span class='op'>)</span>,
+            data <span class='op'>=</span> <span class='va'>d</span>,
+            iter <span class='op'>=</span> <span class='fl'>1e4</span>,
+            save_pars <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/save_pars.html'>save_pars</a></span><span class='op'>(</span>all <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+            file <span class='op'>=</span> <span class='st'>"models/ass4-bf_2"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>loglik_1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/bridge_sampler.brmsfit.html'>bridge_sampler</a></span><span class='op'>(</span><span class='va'>fit1_bf</span>, silent <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='va'>loglik_2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/bridge_sampler.brmsfit.html'>bridge_sampler</a></span><span class='op'>(</span><span class='va'>fit2_bf</span>, silent <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>BF_10</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/bayes_factor.brmsfit.html'>bayes_factor</a></span><span class='op'>(</span><span class='va'>loglik_1</span>, <span class='va'>loglik_2</span><span class='op'>)</span>
+<span class='va'>BF_10</span>
+</code></pre>
+</div>
+</details>
+<pre><code>Estimated Bayes factor in favor of x1 over x2: 115.99740</code></pre>
+</div>
+<h2 id="control-for-age">Control for age</h2>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>fit3</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/brm.html'>brm</a></span><span class='op'>(</span><span class='va'>correct</span> <span class='op'>~</span> <span class='va'>stimulation</span> <span class='op'>+</span> <span class='va'>age</span> <span class='op'>+</span> <span class='op'>(</span><span class='va'>stimulation</span> <span class='op'>|</span> <span class='va'>subject</span><span class='op'>)</span>,
+            prior <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/set_prior.html'>prior</a></span><span class='op'>(</span><span class='fu'>normal</span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>)</span>, class <span class='op'>=</span> <span class='va'>b</span><span class='op'>)</span>,
+            data <span class='op'>=</span> <span class='va'>d</span>,
+            file <span class='op'>=</span> <span class='st'>"models/ass4-3"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>fit3</span>
+</code></pre>
+</div>
+</details>
+<pre><code> Family: gaussian 
+  Links: mu = identity; sigma = identity 
+Formula: correct ~ stimulation + age + (stimulation | subject) 
+   Data: d (Number of observations: 315) 
+Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup samples = 4000
+
+Group-Level Effects: 
+~subject (Number of levels: 34) 
+                              Estimate Est.Error l-95% CI u-95% CI
+sd(Intercept)                     0.03      0.02     0.00     0.07
+sd(stimulationTPJ)                0.03      0.02     0.00     0.08
+cor(Intercept,stimulationTPJ)    -0.07      0.56    -0.95     0.92
+                              Rhat Bulk_ESS Tail_ESS
+sd(Intercept)                 1.00     1066     1325
+sd(stimulationTPJ)            1.00     1476     2197
+cor(Intercept,stimulationTPJ) 1.00     2435     1959
+
+Population-Level Effects: 
+               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
+Intercept          0.16      0.25    -0.33     0.64 1.00     4074
+stimulationTPJ     0.10      0.02     0.05     0.14 1.00     5234
+age                0.00      0.00    -0.00     0.01 1.00     4075
+               Tail_ESS
+Intercept          2701
+stimulationTPJ     2720
+age                2688
+
+Family Specific Parameters: 
+      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sigma     0.19      0.01     0.18     0.21 1.00     3919     2810
+
+Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>loo_fit_3</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/loo.brmsfit.html'>loo</a></span><span class='op'>(</span><span class='va'>fit3</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/brms/man/loo_compare.brmsfit.html'>loo_compare</a></span><span class='op'>(</span><span class='va'>loo_fit_1</span>, <span class='va'>loo_fit_3</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>     elpd_diff se_diff
+fit1  0.0       0.0   
+fit3 -0.4       1.0   </code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>fit3_bf</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/brm.html'>brm</a></span><span class='op'>(</span><span class='va'>correct</span> <span class='op'>~</span> <span class='va'>stimulation</span> <span class='op'>+</span> <span class='va'>age</span> <span class='op'>+</span> <span class='op'>(</span><span class='va'>stimulation</span><span class='op'>|</span> <span class='va'>subject</span><span class='op'>)</span>,
+            prior <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/set_prior.html'>prior</a></span><span class='op'>(</span><span class='fu'>normal</span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>)</span>, class <span class='op'>=</span> <span class='va'>b</span><span class='op'>)</span>,
+            data <span class='op'>=</span> <span class='va'>d</span>,
+            iter <span class='op'>=</span> <span class='fl'>1e4</span>,
+            save_pars <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/save_pars.html'>save_pars</a></span><span class='op'>(</span>all <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+            file <span class='op'>=</span> <span class='st'>"models/ass4-bf_3"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>loglik_3</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/bridge_sampler.brmsfit.html'>bridge_sampler</a></span><span class='op'>(</span><span class='va'>fit3_bf</span>, silent <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>BF_01</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/brms/man/bayes_factor.brmsfit.html'>bayes_factor</a></span><span class='op'>(</span><span class='va'>loglik_3</span>, <span class='va'>loglik_1</span><span class='op'>)</span>
+<span class='va'>BF_01</span>
+</code></pre>
+</div>
+</details>
+<pre><code>Estimated Bayes factor in favor of x1 over x2: 0.00668</code></pre>
+</div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-antonenkoTDCSinducedEpisodicMemory2019" class="csl-entry" role="doc-biblioentry">
 Antonenko, Daria, Dayana Hayek, Justus Netzband, Ulrike Grittner, and Agnes Flöel. 2019. <span>“<span class="nocase">tDCS</span>-Induced Episodic Memory Enhancement and Its Association with Functional Network Coupling in Older Adults.”</span> <em>Scientific Reports</em> 9 (1, 1): 2273. <a href="https://doi.org/10.1038/s41598-019-38630-7">https://doi.org/10.1038/s41598-019-38630-7</a>.
