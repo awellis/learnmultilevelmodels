@@ -1,0 +1,343 @@
+---
+title: "Assignment 3"
+description: | 
+  Pupil popularity and extraversion
+date: 05-28-2021
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Kognitive Psychologie, Wahrnehmung und Methodenlehre, Universität Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/asssignment-3.html
+bibliography: ./bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: true
+      self_contained: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(brms)
+
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+
+We'll look at a dataset containing popularity ratings (given by  classmates) and various personal characteristics of pupils in different classes. The data are available from the[companion website](https://multilevel-analysis.sites.uu.nl/intro-to-multilevel-analyses/) of a book on multilevel analysis [@MultilevelAnalysisTechniques]. The code used here borrows heavily from one of the author's [website](https://www.rensvandeschoot.com/tutorials/brms-started/).
+
+## Download data
+
+```{r}
+popularity <- haven::read_sav(file = "https://github.com/MultiLevelAnalysis/Datasets-third-edition-Multilevel-book/blob/master/chapter%202/popularity/SPSS/popular2.sav?raw=true")
+```
+
+
+```{r}
+popularity <- popularity |> 
+  select(-starts_with("Z"), -Cextrav, - Ctexp, -Csex) |> 
+  mutate(sex = haven::as_factor(sex),
+         pupil = as_factor(pupil),
+         class = as_factor(class))
+
+popularity
+```
+
+The variables are
+
+```
+- pupil: ID   
+- class: which class are pupils in?
+- extrav: extraversion score
+- sex: girl or boy
+- texp: teacher experience
+- popular: popularity rating
+- popteach: teacher popularity
+- Zextrav: z-transformed extraversion score           
+```
+
+
+
+You want to predict pupils' popularity using their extraversion, gender and teacher experience.
+
+:::note
+It is important to consider which the predictor variables are at. `extrav` and `sex` are level-1 predictors, which means they are variables which vary with each observation (here this means by pupils), whereas `texp` is a level-2 predictor---this does not vary by observation, but by `class`. In other words, teacher experience is an attribute of class.
+:::
+
+
+
+:::exercise
+- You should center the predictor variables.
+
+- How many pupils are there per class?
+:::
+
+
+```{r}
+glimpse(popularity)
+```
+
+
+```{r code_folding = TRUE}
+popularity <- popularity |> 
+  mutate(teacher_exp = texp - mean(texp))
+```
+
+```{r code_folding = TRUE}
+popularity |> 
+  count(class)
+```
+
+```{r code_folding = TRUE}
+popularity |> 
+  group_by(class) |> 
+  n_groups()
+```
+
+
+We can plot the data, without taking into account the hierarchical structure.
+
+```{r}
+popularity |> 
+  ggplot(aes(x = extrav,
+           y = popular,
+           color = class,
+           group = class)) + 
+  geom_point(size     = 1.2,
+             alpha    = .8,
+             position = "jitter") +
+  theme(legend.position = "none") +
+  scale_color_viridis_d() +
+  labs(title = "Popularity ~ Extraversion")
+```
+
+The goal here it estimate the average effect of extraversion on popularity. However, we assume that this effect will vary by class, and it might also depend on the pupils' sex. Furthermore, classes may vary by how many years of experience a teacher has. We assume that this might be important.
+
+
+
+
+## Intercept-only model
+
+Start by fitting an intercept-only model. With this we will predict 
+
+
+
+```{r code_folding = TRUE}
+fit1 <- brm(popular ~ 1 + (1 | class),
+            data = popularity,
+            file = "models/pop-fit1")
+```
+
+```{r eval=FALSE, include=FALSE}
+lm1 <- lme4::lmer(popular ~ 1 + (1 | class),
+                data = popularity)
+
+eq1 <- equatiomatic::extract_eq(lm1)
+```
+
+In this model, we are estimating the average the average popularity over classes, as well as the deviation from this average for each class.
+
+
+$$
+\begin{aligned}
+  \operatorname{popular}_{i}  &\sim N \left(\alpha_{j[i]}, \sigma^2 \right) \\
+    \alpha_{j}  &\sim N \left(\mu_{\alpha_{j}}, \sigma^2_{\alpha_{j}} \right)
+    \text{, for class j = 1,} \dots \text{,J}
+\end{aligned}
+$$
+
+
+```{r eval=FALSE, include=FALSE}
+fit1
+```
+
+
+## First level predictors
+
+
+Now you can add some level 1 predictors, e.g. `sex`, `extrav`. You can use the `update()` so that you don't have to rerun the compilation steps.
+
+
+```{r eval=FALSE, include=FALSE}
+lm2 <- lme4::lmer(popular ~ 1 + sex + extrav + 
+                (1 | class),
+                data = popularity)
+
+eq2 <- equatiomatic::extract_eq(lm2)
+```
+
+$$
+\begin{aligned}
+  \operatorname{popular}_{i}  &\sim N \left(\alpha_{j[i]} + \beta_{1}(\operatorname{sex}_{\operatorname{girl}}) + \beta_{2}(\operatorname{extrav}), \sigma^2 \right) \\
+    \alpha_{j}  &\sim N \left(\mu_{\alpha_{j}}, \sigma^2_{\alpha_{j}} \right)
+    \text{, for class j = 1,} \dots \text{,J}
+\end{aligned}
+$$
+
+
+```{r eval=FALSE, include=TRUE, code_folding = TRUE}
+fit1 |> 
+  update(. ~ . + sex, 
+         prior = prior(normal(0, 2), class = b),
+         newdata = popularity)
+```
+
+
+This is equivalent to
+
+```{r code_folding = TRUE}
+fit2 <- brm(popular ~ 1 + sex + extrav + (1|class),  
+              prior = prior(normal(0, 2), class = b),
+              data = popularity, 
+            iter = 4000,
+            file = "models/pop-fit2") 
+```
+
+
+
+## Second level predictors
+
+Now add the the level-2 predictor teacher experience.
+
+```{r eval=FALSE, include=FALSE}
+lm3 <- lme4::lmer(popular ~ 1 + sex + extrav + teacher_exp +
+                (1 | class),
+                data = popularity)
+
+eq3 <- equatiomatic::extract_eq(lm3)
+```
+
+
+$$
+\begin{aligned}
+  \operatorname{popular}_{i}  &\sim N \left(\alpha_{j[i]} + \beta_{1}(\operatorname{sex}_{\operatorname{girl}}) + \beta_{2}(\operatorname{extrav}), \sigma^2 \right) \\
+    \alpha_{j}  &\sim N \left(\gamma_{0}^{\alpha} + \gamma_{1}^{\alpha}(\operatorname{teacher\_exp}), \sigma^2_{\alpha_{j}} \right)
+    \text{, for class j = 1,} \dots \text{,J}
+\end{aligned}
+$$
+
+
+```{r}
+fit3 <- fit2 |> update(. ~ . + teacher_exp,
+                       file = "models/pop-fit3",
+                       newdata = popularity)
+```
+
+or equivalently
+
+```{r eval=FALSE, include=TRUE}
+fit3 <- brm(popular ~ 1 + sex + extrav + teacher_exp + (1 | class),  
+            prior = prior(normal(0, 2), class = b),
+            data = popularity,
+            file = "models/pop-fit3") 
+
+```
+
+
+
+Now it's time for some plot.
+
+```{r}
+fit2 |> mcmc_plot()
+```
+
+```{r}
+fit3 |> mcmc_plot()
+```
+
+
+### Model comparisons
+
+```{r}
+loo2 <- loo(fit2)
+loo3 <- loo(fit3)
+```
+
+```{r}
+loo_compare(loo2, loo3)
+```
+
+
+
+```{r}
+bayes_R2(fit2)
+bayes_R2(fit3)
+```
+```{r}
+performance::r2_bayes(fit2)
+performance::r2_bayes(fit3)
+```
+
+
+## Cross-level interaction
+
+Let  teacher experience interact with extraversion. This is what's known as a cross-level interaction; extraversion is a predictor of the level 1 units (pupils), whereas teacher experience is s predictor at level 2 (classes). This can be verified by looking at the dataframe---teacher experience does not have one unique value per observation, but instead for each class.
+
+
+```{r eval=FALSE, include=FALSE}
+lm5 <- lme4::lmer(popular ~ 1 + sex + extrav + texp + extrav:texp + 
+                (1 + extrav | class),
+                data = popularity)
+
+eq5 <- equatiomatic::extract_eq(lm5)
+```
+
+
+$$
+\begin{aligned}
+  \operatorname{popular}_{i}  &\sim N \left(\alpha_{j[i]} + \beta_{1}(\operatorname{sex}_{\operatorname{girl}}) + \beta_{2j[i]}(\operatorname{extrav}), \sigma^2 \right) \\    
+\left(
+  \begin{array}{c} 
+    \begin{aligned}
+      &\alpha_{j} \\
+      &\beta_{2j}
+    \end{aligned}
+  \end{array}
+\right)
+  &\sim N \left(
+\left(
+  \begin{array}{c} 
+    \begin{aligned}
+      &\gamma_{0}^{\alpha} + \gamma_{1}^{\alpha}(\operatorname{texp}) \\
+      &\gamma^{\beta_{2}}_{0} + \gamma^{\beta_{2}}_{1}(\operatorname{texp})
+    \end{aligned}
+  \end{array}
+\right)
+, 
+\left(
+  \begin{array}{cc}
+     \sigma^2_{\alpha_{j}} & \rho_{\alpha_{j}\beta_{2j}} \\ 
+     \rho_{\beta_{2j}\alpha_{j}} & \sigma^2_{\beta_{2j}}
+  \end{array}
+\right)
+ \right)
+    \text{, for class j = 1,} \dots \text{,J}
+\end{aligned}
+$$
+
+
+```{r eval=FALSE, include=TRUE, code_folding = TRUE}
+model5 <- brm(popular ~ 1 + sex + extrav + texp + extrav:texp + 
+                (1 + extrav | class), 
+              prior = prior(normal(0, 2), class = b),
+              data  = popularity)
+```
+
+
+
+:::fyi
+You can attempt to decide which models fit better than others by doing posterior predictive checks.
+:::

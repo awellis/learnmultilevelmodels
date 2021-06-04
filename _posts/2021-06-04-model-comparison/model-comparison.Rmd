@@ -1,0 +1,485 @@
+---
+title: "Model comparison"
+description: | 
+  Using loo (approximate leave-one-out-cross-validation) and Bayesian R squared
+date: 06-04-2021
+categories:
+  - multilevel models
+  - Bayes factor
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Cognitive psychology, perception & methods, Univerity of Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/model-comparison.html
+bibliography: ../../bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+      css: ../../css/style.css
+---
+
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+```
+
+
+
+# Approximate leave-one-out cross-validation
+
+Another way to evaluate and compare models is on their ability to make predictions for “out-of-sample data”, that is, future observations, using what we learned from the observed data. We can use cross-validation to test which of the models under consideration is able to learn the most from our data in order to make the better predictions.
+
+The idea here is that the instead of assessing how well a model can predict the data (prior predictive density), we are assessing how well a model can predict new data based on the posterior predictive density, $log \, p(\tilde{y}|y, \mathcal{M})$. Essentially, this is a technique for approximating the expected log pointwise density (`elpd`), based on importance sampling [@vehtariPracticalBayesianModel2017a]. A major advantage of cross validation methods in comparison with Bayes factor is that the specification of priors is less critical.
+
+We will use the same dataset as in the bridge sampling example.
+
+
+```{r code_folding = TRUE}
+simulate_treatment <- function(a = 3.5,
+                              b = -1,
+                              sigma_a = 1,
+                              sigma_b = 0.8,
+                              rho = -0.7,
+                              n_subjects = 10,
+                              n_trials = 20,
+                              sigma = 0.5) {
+
+    # Ccombine the terms
+    mu <- c(a, b)
+    cov_ab <- sigma_a * sigma_b * rho
+    SD  <- matrix(c(sigma_a^2, cov_ab,
+                       cov_ab, sigma_b^2), ncol = 2)
+
+   #  sigmas <- c(sigma_a, sigma_b)          # standard deviations
+   #  rho <- matrix(c(1, rho,             # correlation matrix
+   #                 rho, 1), nrow = 2)
+   # 
+   # # now matrix multiply to get covariance matrix
+   # SD <- diag(sigmas) %*% rho %*% diag(sigmas)
+
+    varying_effects <-
+        MASS::mvrnorm(n_subjects, mu, SD) |>
+        # as_tibble(.name_repair = "unique") |>
+        data.frame() |>
+        purrr::set_names("a_j", "b_j")
+
+    d_linpred <-
+        varying_effects |>
+        mutate(subject  = 1:n_subjects) |>
+        expand(nesting(subject, a_j, b_j), post = c(0, 1)) |>
+        mutate(mu = a_j + b_j * post,
+               sigma = sigma) |>
+        mutate(treatment = ifelse(post == 0, "pre", "post"),
+               treatment = factor(treatment, levels = c("pre", "post")),
+               subject = as_factor(subject))
+
+    d <- d_linpred |>
+        slice(rep(1:n(), each = n_trials)) |>
+        mutate(response = rnorm(n = n(), mean = mu, sd = sigma))
+
+   d
+}
+```
+
+```{r code_folding = TRUE}
+plot_linpred <- function(d, violin = FALSE) {
+  
+  d_linpred <- d |>
+  group_by(subject, treatment) |> distinct(mu, .keep_all = TRUE)
+  
+  p <- d_linpred |>
+    ggplot(aes(x = treatment, y = mu))
+  
+  if (isTRUE(violin)) {
+  p <- p + 
+      geom_violin(aes(x = treatment, y = response,
+                          fill = treatment), 
+                  alpha = 0.5,
+                  data = d) +
+      geom_jitter(aes(x = treatment, y = response,
+                          color = treatment), 
+                  width = 0.1, size = 2,
+                  data = d)
+  }
+  
+  p <- p +
+    geom_line(aes(group = 1), color = "#8B9DAF", size = 1, linetype = 3) +
+    geom_point(aes(fill = treatment), 
+               shape = 21, 
+               colour = "black", 
+               size = 4, 
+               stroke = 2) +
+    scale_fill_brewer(type = "qual") +
+    scale_color_brewer(type = "qual") +
+    coord_cartesian(ylim = c(0, 8)) +
+    ylab("Response") +
+    theme(legend.position = "none",
+          axis.ticks.x    = element_blank()) +
+    facet_wrap(~ subject) +
+  ggtitle("Linear predictor")
+  
+  p
+}
+```
+
+We have a hierarchical dataset, consisting of 30 subjects, measured at two time points (with 20 trials per time point). 
+
+The parameters used to generate the data are:
+
+```{r}
+params <- tribble(~Parameter, ~`Default value`, ~Desccription,
+                  "a", 2, "average pre-treatment effect (intercepts)",
+                  "b", 0.5, "average difference between pre and post",
+                  "sigma_a", 1, "std dev in intercepts",
+                  "sigma_b", 2, "std dev in differences (slopes)",
+                  "rho", -0.2, "correlation between intercepts and slopes",
+                  "sigma", 0.5, "residual standard deviation") 
+params |> 
+    kableExtra::kbl() |> 
+    kableExtra::kable_paper("hover", full_width = T)
+```
+These are the parameter we would like to recover using our model.
+
+
+
+```{r}
+set.seed(867)
+d <- simulate_treatment(n_subjects = 30,
+                        a = 2, b = 0.5,
+                        sigma_a = 1, sigma_b = 1.5,
+                        rho = -0.2,
+                        sigma = 0.5,
+                        n_trials = 20)
+```
+
+
+
+We can plot 12 random subjects to get an idea of what the true means look like.
+
+```{r}
+random_subjects <- sample(levels(d$subject), 12)
+d |> 
+  filter(subject %in% random_subjects) |> plot_linpred()
+```
+
+```{r}
+library(brms)
+```
+
+
+
+```{r}
+priors <- prior(normal(0, 1), class = b) +
+  prior(lkj(2), class = cor)
+
+fit1 <- brm(response ~ treatment + (treatment | subject),
+                    prior = priors,
+                    data = d,
+                    file = "../../models/fit_loo_1",
+                    file_refit = "on_change")
+```
+
+
+
+```{r}
+fit1
+```
+
+```{r}
+loo_fit1 <- loo(fit1)
+
+loo_fit1
+```
+
+
+The function loo reports three quantities with their standard errors:
+
+- `elpd_loo` is the sum of pointwise predictive accuracy (a larger, less negative number indicates better predictions).
+- `p_loo` is an estimate of effective complexity of the model; p_loo can be interpreted as the effective number of parameters. If p_loo is larger than the number of data points or parameters, this may indicate a severe model misspecification.
+- `looic` is simply `-2*elpd_loo`. It’s mainly for historical reasons, and converts elpd to a measure of deviance, on the same scale as AIC and DIC.
+
+<aside>
+The PSIS-LOO approximation to LOO can only be trusted if Pareto k estimates are smaller than 0.5.
+</aside>
+
+
+
+Next we will fit our null model (using more iterations than the default, as per Stan's recommendation).
+
+```{r}
+fit_null_varying_effects <- brm(response ~ 1 + (treatment | subject),
+                    prior = prior(lkj(2), class = cor),
+                    data = d,
+                    iter = 4000,
+                    file = "../../models/fit_loo_null",
+                    file_refit = "on_change")
+```
+
+
+
+```{r}
+loo_fit_null_varying_effects <- loo(fit_null_varying_effects)
+
+loo_fit_null_varying_effects
+```
+
+
+To compare the models, we need to look at the difference between `elpd_loo` and the standard error (`SE`) of that difference:
+
+```{r}
+loo_compare(loo_fit1, loo_fit_null_varying_effects)
+```
+
+
+The difference in `elpd_loo` is not bigger than two times the `SD` (rule of thumb), meaning that from the perspective of LOO, the models are almost indistinguishable. 
+
+
+```{r}
+d <- mutate(d,
+            n = row_number(),
+            diff_elpd = loo_fit1$pointwise[,"elpd_loo"] -
+                        loo_fit_null_varying_effects$pointwise[,"elpd_loo"])
+
+d |> 
+  ggplot(aes(x = n, y = diff_elpd, color = treatment)) +
+  geom_point(alpha = .4, position = position_jitter(w = 0.01, h = 0)) +
+  scale_color_brewer(type = "qual")
+```
+```{r}
+d |> 
+  ggplot(aes(x = treatment, y = diff_elpd, color = treatment)) +
+  geom_point(alpha = .4, position = position_jitter(w = 0.1, h = 0)) +
+  scale_color_brewer(type = "qual")
+```
+
+
+```{r}
+pp_check(fit1)
+```
+
+```{r}
+pp_check(fit_null_varying_effects)
+```
+
+
+```{r}
+fit_loo_null <- brm(response ~ 1 + (treatment | subject),
+                    prior = prior(lkj(2), class = cor),
+                    data = d,
+                    iter = 4000,
+                    file = "../../models/fit_loo_null-2",
+                    file_refit = "on_change")
+```
+
+
+
+```{r}
+loo_fit_loo_null <- loo(fit_loo_null)
+```
+
+
+```{r}
+loo_compare(loo_fit1, loo_fit_null_varying_effects, loo_fit_loo_null)
+```
+
+
+Let's try this again, using a bigger true difference between treatment conditions.
+
+
+
+```{r}
+set.seed(867)
+d2 <- simulate_treatment(n_subjects = 30,
+                        a = 3, b = 2,
+                        sigma_a = 1, sigma_b = 1.5,
+                        rho = -0.2,
+                        sigma = 0.5,
+                        n_trials = 20)
+```
+
+
+
+We can plot 12 random subjects to get an idea of what the true means look like.
+
+```{r}
+random_subjects <- sample(levels(d2$subject), 12)
+d2 |> 
+  filter(subject %in% random_subjects) |> plot_linpred()
+```
+
+
+
+
+
+```{r}
+priors <- prior(normal(0, 1), class = b) +
+  prior(lkj(2), class = cor)
+
+fit2 <- brm(response ~ treatment + (treatment | subject),
+                    prior = priors,
+                    data = d2,
+                    file = "../../models/fit_loo_d2",
+                    file_refit = "on_change") |> 
+  add_criterion("loo")
+```
+
+
+```{r}
+fit_null_2 <- brm(response ~ 1 + (treatment | subject),
+                    prior = prior(lkj(2), class = cor),
+                    data = d2,
+                    iter = 4000,
+                    file = "../../models/fit_loo_null_d2",
+                    file_refit = "on_change") |> 
+    add_criterion("loo")
+```
+
+
+```{r}
+loo_compare(fit2, fit_null_2)
+```
+
+
+
+
+```{r}
+pp_check(fit2)
+```
+
+
+```{r}
+pp_check(fit_null_2)
+```
+
+
+
+# R^2 
+
+The usual definition of $R^2$ (variance of the predicted values $\hat{y}$ divided by the variance of the observations $y$) has problems as a measure of model fit---it always favours models with more parameters (it overfits) and it doesn’t generalize well outside of the single-level Gaussian framework.
+
+However @gelmanRsquaredBayesianRegression2019a have created a Bayesian $R^2$, which is computed as 
+
+$$
+
+\frac{\text{Explained variance}}{\text{Explained variance} + \text{Residual variance}}
+
+$$ 
+
+The classical $R^2$ is given by 
+
+$$
+
+\frac{\text{var}(\hat{y})}{\text{var}(y)}
+
+$$ 
+
+```{r}
+bayes_R2(fit2) %>% round(digits = 3)
+```
+
+```{r}
+bayes_R2(fit_null_2) %>% round(digits = 3)
+```
+
+
+
+The R package `performance` also implements both conditional and marginal $R^2$ for multilevel models.
+
+- marginal $R^2$ considers only the variance of the fixed effects
+- conditional $R^2$ consider both fixed and random effects
+
+
+# Real-world example
+
+
+```{r}
+library(lme4)
+data("sleepstudy")
+```
+
+
+
+```{r}
+sleepstudy <- sleepstudy %>% 
+  as_tibble() %>% 
+  mutate(Subject = as.character(Subject))
+```
+
+
+
+```{r}
+ggplot(sleepstudy) + 
+  aes(x = Days, y = Reaction) + 
+  stat_smooth(method = "lm", se = FALSE) +
+  geom_point() +
+  facet_wrap(~Subject) +
+  labs(x = "Days of sleep deprivation", 
+       y = "Average reaction time (ms)") + 
+  scale_x_continuous(breaks = 0:4 * 2)
+```
+
+
+
+```{r}
+fit_no_pooling <- brm(Reaction ~ Days*Subject,
+                      prior = prior(normal(0, 10), class = b),
+                      data = sleepstudy,
+                      file = "../../models/sleepstudy_no_pooling")
+```
+
+
+
+
+
+
+```{r}
+fit_partial_pooling <- brm(Reaction ~ 1 + Days + (1 + Days | Subject),
+                      prior = prior(normal(0, 10), class = b),
+                      data = sleepstudy,
+                      file = "../../models/sleepstudy_partial_pooling")
+```
+
+
+```{r}
+loo_no_pooling <- loo(fit_no_pooling)
+loo_partial_pooling <- loo(fit_partial_pooling)
+
+```
+
+```{r}
+plot(loo_no_pooling)
+``` 
+
+```{r}
+loo_compare(loo_no_pooling, loo_partial_pooling)
+```
+
+
+
+```{r}
+fit_sleep_null_vary_effects <- brm(Reaction ~ 1 + (1 + Days | Subject),
+                      prior = prior(lkj(2), class = cor),
+                      data = sleepstudy,
+                      file = "../../models/fit_sleep_null_vary_effects")
+```
+
+```{r}
+loo_sleep_null_vary_effects <- loo(fit_sleep_null_vary_effects)
+loo_sleep_null_vary_effects
+```
+
+```{r}
+loo_compare(loo_sleep_null_vary_effects, loo_partial_pooling)
+```
+

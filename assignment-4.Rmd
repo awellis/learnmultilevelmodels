@@ -18,7 +18,7 @@ output:
       toc: true
       toc_float: true
       toc_depth: 2
-      code_folding: false
+      code_folding: true
       self_contained: false
 ---
 
@@ -80,14 +80,145 @@ d <- d %>%
 
 :::exercise
 
-- specify a linear model
+1) specify a linear model
 
-- specify a null model
+2) specify a null model
 
-- estimate a Bayes factor for the effect of TPJ stimulation
+3) compare models using approximate leave-one-out cross-validation
+
+4) estimate a Bayes factor for the effect of TPJ stimulation
     + using the Savage-Dickey density ratio test
     + using the bridge sampling method
-
-- control for subjects' age
+    
+5) control for subjects' age
 :::
+
+
+## Linear model
+
+```{r}
+fit1 <- brm(correct ~ stimulation + (stimulation| subject),
+            prior = prior(normal(0, 1), class = b),
+            data = d,
+            file = "models/ass4-1")
+```
+
+
+```{r}
+summary(fit1)
+```
+
+
+```{r}
+mcmc_plot(fit1, "b_", type = "areas")
+```
+
+## Null model
+
+```{r}
+fit2 <- brm(correct ~ 1 + (stimulation| subject),
+            data = d,
+            file = "models/ass4-2")
+```
+
+
+
+
+## Model comparison using loo
+
+```{r}
+loo_fit_1 <- loo(fit1)
+loo_fit_1
+```
+
+```{r}
+loo_fit_2 <- loo(fit2)
+loo_fit_2
+```
+
+```{r}
+loo_compare(loo_fit_1, loo_fit_2)
+```
+
+## Model comparison via Bayes factor
+
+```{r}
+fit1_bf <- brm(correct ~ stimulation + (stimulation| subject),
+            prior = prior(normal(0, 1), class = b),
+            data = d,
+            iter = 1e4,
+            save_pars = save_pars(all = TRUE),
+            file = "models/ass4-bf_1")
+```
+
+
+```{r}
+fit2_bf <- brm(correct ~ 1 + (stimulation| subject),
+            prior = prior(normal(0, 1), class = b),
+            data = d,
+            iter = 1e4,
+            save_pars = save_pars(all = TRUE),
+            file = "models/ass4-bf_2")
+```
+
+
+
+```{r}
+loglik_1 <- bridge_sampler(fit1_bf, silent = TRUE)
+loglik_2 <- bridge_sampler(fit2_bf, silent = TRUE)
+```
+
+ 
+ 
+```{r}
+BF_10 <- bayes_factor(loglik_1, loglik_2)
+BF_10
+```
+ 
+
+## Control for age
+
+```{r}
+fit3 <- brm(correct ~ stimulation + age + (stimulation | subject),
+            prior = prior(normal(0, 1), class = b),
+            data = d,
+            file = "models/ass4-3")
+```
+
+
+```{r}
+fit3
+```
+
+
+```{r}
+loo_fit_3 <- loo(fit3)
+```
+
+
+```{r}
+loo_compare(loo_fit_1, loo_fit_3)
+```
+
+
+
+```{r}
+fit3_bf <- brm(correct ~ stimulation + age + (stimulation| subject),
+            prior = prior(normal(0, 1), class = b),
+            data = d,
+            iter = 1e4,
+            save_pars = save_pars(all = TRUE),
+            file = "models/ass4-bf_3")
+```
+
+```{r}
+loglik_3 <- bridge_sampler(fit3_bf, silent = TRUE)
+```
+
+
+
+```{r}
+BF_01 <- bayes_factor(loglik_3, loglik_1)
+BF_01
+```
 

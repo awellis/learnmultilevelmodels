@@ -36,9 +36,6 @@ navbar:
           href: topics.html
 
   right:
-    - text: "Documents"
-      menu:
-
     - text: "Assignments"
       menu:
         - text: "Assignment 1"
@@ -50,8 +47,12 @@ navbar:
         - text: "Assignment 4: tDCS and memory"
           href: assignment-4.html
 
-    - text: "Solutions"
-      menu:
+    # - text: "Solutions"
+    #   menu:
+    #    - text: "Solution 3: Pupil popularity"
+    #      href: solution-3.html
+    #    - text: "Solution 4: tDCS and memory"
+    #      href: solution-4.html
 
 
     - text: "Slides"
