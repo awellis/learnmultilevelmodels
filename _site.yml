@@ -36,6 +36,15 @@ navbar:
           href: topics.html
 
   right:
+    - text: "Topics"
+      menu:
+        - text: "Longitudinal models"
+          href: long-1.html
+        - text: "Binary data"
+          href: logistic-2.html
+        - text: "Response times"
+          href: rt-2.html
+
     - text: "Assignments"
       menu:
         - text: "Assignment 1"
