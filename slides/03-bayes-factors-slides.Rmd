@@ -1,5 +1,5 @@
 ---
-title: "Model comparisob"
+title: "Model comparison"
 session: 3
 subtitle: "Part 1 <br/> Bayes factors"
 author: "Andrew Ellis"

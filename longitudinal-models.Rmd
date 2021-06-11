@@ -1,0 +1,504 @@
+---
+title: "Longitudinal Models"
+description: | 
+  Modelling change over time
+date: 06-11-2021
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Cognitive psychology, perception & methods, Univerity of Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/longitudinal-models.html
+bibliography: ./bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+      css: ./css/style.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      cache = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+
+The examples in this document are taken from @singerAppliedLongitudinalData and the translation into tidyverse and brms code by @kurzAppliedLongitudinalDataAnalysis2021.
+
+
+We will first briefly look at how to reshape datasets, and then investigate two examples of longitudinal data with a hierarchical structure.
+
+
+```{r packages}
+library(kableExtra)
+library(tidyverse)
+library(brms)
+
+# set ggplot theme
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+
+# set rstan options
+rstan::rstan_options(auto_write = TRUE)
+options(mc.cores = 4)
+```
+
+
+
+
+
+# Exlporing data
+
+
+We'll load a dataset from @raudenbushGrowthCurveAnalysis1992.
+
+```{r}
+tolerance <- read_csv("https://stats.idre.ucla.edu/wp-content/uploads/2016/02/tolerance1.txt", col_names = TRUE)
+
+head(tolerance, n = 16)
+```
+The data are in the wide format (one row per `id`), but we need one row per observation, so we need to rehape the data into a long format.
+
+
+
+```{r}
+tolerance <- tolerance |> 
+  pivot_longer(-c(id, male, exposure),
+               names_to = "age", 
+               values_to = "tolerance") |> 
+  # remove the `tol` prefix from the `age` values 
+  mutate(age = str_remove(age, "tol") |> as.integer()) |> 
+  arrange(id, age) 
+```
+
+
+
+We have 16 subjects.
+
+```{r}
+tolerance %>% 
+  distinct(id) %>% 
+  count()
+```
+
+```{r}
+tolerance %>%
+  slice(c(1:9, 76:80))
+```
+
+
+
+First, we will plot the observations over time (at different ages), and connect them with lines.
+
+
+```{r}
+tolerance %>%
+  ggplot(aes(x = age, y = tolerance)) +
+  geom_point() +
+  geom_line() +
+  coord_cartesian(ylim = c(1, 4)) +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~id)
+```
+
+
+
+Next, we will apply locally weighted smoothing.
+
+
+```{r}
+tolerance %>%
+  ggplot(aes(x = age, y = tolerance)) +
+  geom_point() +
+  stat_smooth(method = "loess", se = F, span = .9) +
+  coord_cartesian(ylim = c(1, 4)) +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~id)
+```
+
+
+
+And finally, we'll estimate the linear effect of age.
+
+```{r}
+tolerance %>%
+  ggplot(aes(x = age, y = tolerance)) +
+  geom_point() +
+  stat_smooth(method = "lm", se = F, span = .9) +
+  coord_cartesian(ylim = c(1, 4)) +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~id)
+```
+
+
+
+
+# Early Intervention
+
+We'll start with a data set on early intervention on child development [@singerAppliedLongitudinalData]
+
+
+> As part of a larger study of the effects of early intervention on child development, these researchers tracked the cognitive performance of 103 African- American infants born into low-income families. When the children were 6 months old, approximately half (n = 58) were randomly assigned to participate in an intensive early intervention program designed to enhance their cognitive functioning; the other half (n = 45) received no intervention and constituted a control group. Each child was assessed 12 times between ages 6 and 96 months. Here, we examine the effects of program participation on changes in cognitive performance as measured by a nationally normed test administered three times, at ages 12, 18, and 24 months.
+
+> Each child has three records, one per wave of data collection. Each record contains four variables: (1) ID; (2) AGE, the child’s age (in years) at each assessment (1.0, 1.5, or 2.0); (3) COG, the child’s cognitive performance score at that age; and (4) PROGRAM, a dichotomy that describes whether the child participated in the early intervention program. Because children remained in their group for the duration of data collection, this predictor is time-invariant.
+ 
+ 
+```{r}
+early_int <- read_csv("data/early-intervention.csv") |> 
+  mutate(id = as_factor(id),
+         intervention = factor(ifelse(program == 0, "no", "yes"),
+                               levels = c("no", "yes")))
+
+head(early_int, 10)
+```
+
+
+
+In addition, we have the `age-1` variable, `age_c`. This variable has the value 0 when the child is 1 year old.
+
+```{r}
+early_int |> 
+  filter(id %in% sample(levels(early_int$id), 12)) |> 
+  ggplot(aes(x = age, y = cog)) +
+  stat_smooth(method = "lm", se = F) +
+  geom_point() +
+  scale_x_continuous(breaks = c(1, 1.5, 2)) +
+  ylim(50, 150) +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~id, ncol = 4)
+```
+
+
+Our model for each child's development is:
+
+$$
+\text{cog}_{ij} = [ \pi_{0i} + \pi_{1i} (\text{age}_{ij} - 1) ] + [\epsilon_{ij}].
+$$
+
+
+\begin{align*}
+\text{cog} & \sim \operatorname{Normal} (\mu_{ij}, \sigma_\epsilon^2) \\
+\mu_{ij}   & = \pi_{0i} + \pi_{1i} (\text{age}_{ij} - 1).
+\end{align*}
+
+
+
+
+The $i^{th}$ child's `cog` score at observation $j$ is normally distributed, with mean $\mu$ and residuak standard deviation $\sigma_{\epsilon}$. The mean $\mu$ is modelled as a linear function of age. The intercept will correspond to the expected score at age 1.
+
+
+
+Next, we consider that the children are assigned to two different group.
+
+```{r}
+early_int<-
+  early_int|> 
+  mutate(label = str_c("Intervetion = ", intervention)) 
+
+early_int |> 
+  ggplot(aes(x = age, y = cog, color = label)) +
+  stat_smooth(aes(group = id),
+              method = "lm", se = F, size = 1/6) +
+  stat_smooth(method = "lm", se = F, size = 2) +
+  scale_color_viridis_d(option = "B", begin = .33, end = .67) +
+  scale_x_continuous(breaks = c(1, 1.5, 2)) +
+  ylim(50, 150) +
+  theme(legend.position = "none",
+        panel.grid = element_blank()) +
+  facet_wrap(~label)
+```
+
+
+
+## Fitting the model with brms
+
+```{r}
+priors_early_1 <- prior(normal(0, 20), class = b)
+
+fit_early_1 <-
+  brm(cog ~ 0 + Intercept + age_c + intervention + age_c:intervention + 
+        (1 + age_c | id),
+      prior = priors_early_1,
+      data = early_int,
+      control = list(adapt_delta = 0.95),
+      seed = 3,
+      file = "models/fit_early_1",
+      file_refit = "on_change")
+```
+
+
+
+
+
+```{r}
+fit_early_1
+```
+
+```{r}
+conditional_effects(fit_early_1,
+                    "age_c:intervention")
+```
+
+
+
+:::exercise
+
+How would you go about demonstrating evidence for or against a difference between the interventions?
+:::
+
+
+
+
+# Changes in adolescent alcohol use
+
+
+> As part of a larger study of substance abuse, Curran, Stice, and Chassin (1997) collected three waves of longitudinal data on 82 adolescents. Each year, beginning at age 14, the teenagers completed a four-item instrument assessing their alcohol consumption during the previous year. Using an 8-point scale (ranging from 0 = "not at all" to 7 = "every day"), adolescents described the frequency with which they (1) drank beer or wine, (2) drank hard liquor, (3) had five or more drinks in a row, and (4) got drunk. The data set also includes two potential predictors of alcohol use: COA, a dichotomy indicating whether the adolescent is a child of an alcoholic parent; and PEER, a measure of alcohol use among the adolescent’s peers. This latter predictor was based on information gathered during the initial wave of data collection. Participants used a 6-point scale (ranging from 0 = "none" to 5 = "all") to estimate the proportion of their friends who drank alcohol occasionally (one item) or regularly (a second item).
+
+> Do individual trajectories of alcohol use during adolescence differ according to the history of parental alcoholism and early peer alcohol use.
+
+
+```{r}
+library(tidyverse)
+
+alcohol <- read_csv("data/alcohol1_pp.csv")
+head(alcohol)
+```
+
+```{r echo=FALSE}
+tribble(~Variable, ~Description,
+  "id", "subject ID",
+  "age", "in years",
+  "coa", "child of alcoholic parent (1 - yes, 0 - no)",
+  "male", "indicator for male",
+  "age_14", "age - 14 (0 corresponds to age: 14)",
+  "alcuse", "alcohol consumption",
+  "peer", "alcohol use among peers",
+  "cpeer, ccoa", "centred variables") |> 
+  kbl() |> 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+
+
+
+
+
+```{r}
+alcohol %>%
+  filter(id %in% c(4, 14, 23, 32, 41, 56, 65, 82)) %>%
+  
+  ggplot(aes(x = age, y = alcuse)) +
+  stat_smooth(method = "lm", se = F) +
+  geom_point() +
+  coord_cartesian(xlim = c(13, 17),
+                  ylim = c(-1, 4)) +
+  theme(panel.grid = element_blank()) +
+  facet_wrap(~id, ncol = 4)
+```
+
+
+
+\begin{align*}
+\text{alcuse}_{ij} & = \pi_{0i} + \pi_{1i} (\text{age}_{ij} - 14) + \epsilon_{ij}\\
+\epsilon_{ij}      & \sim \operatorname{Normal}(0, \sigma_\epsilon^2),
+\end{align*}
+
+
+\begin{align*}
+\text{alcuse}_{ij} & = \big [ \gamma_{00} + \gamma_{10} \text{age_14}_{ij} + \gamma_{01} \text{coa}_i + \gamma_{11} (\text{coa}_i \times \text{age_14}_{ij}) \big ] \\
+& \;\;\;\;\; + [ \zeta_{0i} + \zeta_{1i} \text{age_14}_{ij} + \epsilon_{ij} ] \\
+\epsilon_{ij} & \sim \operatorname{Normal} (0, \sigma_\epsilon^2) \\
+
+\begin{bmatrix} \zeta_{0i} \\ \zeta_{1i} \end{bmatrix} & \sim \operatorname{Normal} 
+\begin{pmatrix}
+\begin{bmatrix} 0 \\ 0 \end{bmatrix}, 
+\begin{bmatrix} \sigma_0^2 & \sigma_{01} \\ \sigma_{01} & \sigma_1^2 \end{bmatrix}
+\end{pmatrix},
+\end{align*}
+
+
+
+
+## Unconditional means model
+
+\begin{align*}
+\text{alcuse}_{ij} & =  \gamma_{00} +  \zeta_{0i} + \epsilon_{ij} \\
+\epsilon_{ij}      & \sim \operatorname{Normal}(0, \sigma_\epsilon^2) \\
+\zeta_{0i}         & \sim \operatorname{Normal}(0, \sigma_0^2).
+\end{align*}
+
+
+```{r}
+get_prior(alcuse ~ 1 + (1 | id),
+          data = alcohol)
+```
+
+```{r}
+fit_alcuse_1 <-
+  brm(alcuse ~ 1 + (1 | id),
+      data = alcohol,
+      file = "models/fit_alcuse_1",
+      file_refit = "on_change")
+```
+
+
+## Unconditional growth model
+
+\begin{align*}
+\text{alcuse}_{ij} & = \gamma_{00} + \gamma_{10} \text{age_14}_{ij} + \zeta_{0i} + \zeta_{1i} \text{age_14}_{ij} + \epsilon_{ij} \\
+\epsilon_{ij} & \sim \operatorname{Normal} (0, \sigma_\epsilon^2) \\
+\begin{bmatrix} \zeta_{0i} \\ \zeta_{1i} \end{bmatrix} & \sim \operatorname{Normal} 
+\begin{pmatrix}
+\begin{bmatrix} 0 \\ 0 \end{bmatrix}, 
+\begin{bmatrix} \sigma_0^2 & \sigma_{01} \\ \sigma_{01} & \sigma_1^2 \end{bmatrix}
+\end{pmatrix}.
+\end{align*}
+
+
+
+```{r}
+get_prior(alcuse ~ 0 + Intercept + age_14 + (1 + age_14 | id),
+          data = alcohol)
+```
+
+
+```{r fit4.2}
+fit_alcuse_2 <-
+  brm(alcuse ~ 0 + Intercept + age_14 + (1 + age_14 | id),
+      prior = c(prior(normal(0, 15), class = b)),
+      data = alcohol,
+      file = "models/fit_alcuse_2")
+```
+
+
+
+## Effect of COA
+
+\begin{align*}
+\text{alcuse}_{ij} & = \gamma_{00} + \gamma_{01} \text{coa}_i + \gamma_{10} \text{age_14}_{ij} + \gamma_{11} \text{coa}_i \times \text{age_14}_{ij} + \zeta_{0i} + \zeta_{1i} \text{age_14}_{ij} + \epsilon_{ij} \\
+\epsilon_{ij} & \sim \text{Normal} (0, \sigma_\epsilon^2) \\
+\begin{bmatrix} \zeta_{0i} \\ \zeta_{1i} \end{bmatrix} & \sim \text{Normal} 
+\begin{pmatrix}
+\begin{bmatrix} 0 \\ 0 \end{bmatrix}, 
+\begin{bmatrix} \sigma_0^2 & \sigma_{01} \\ \sigma_{01} & \sigma_1^2 \end{bmatrix}
+\end{pmatrix}.
+\end{align*}
+
+
+```{r}
+fit_alcuse_3 <-
+  brm(data = alcohol,
+      alcuse ~ 0 + Intercept + age_14 + coa + age_14:coa + (1 + age_14 | id),
+      prior = c(prior(normal(0, 15), class = b)),
+      file = "models/fit_alcuse_3")
+```
+
+
+
+```{r}
+fit_alcuse_3
+```
+
+```{r}
+mcmc_plot(fit_alcuse_3)
+```
+
+
+
+```{r}
+loo_alcuse_2 <- loo(fit_alcuse_2)
+loo_alcuse_3 <- loo(fit_alcuse_3)
+```
+
+```{r}
+loo_compare(loo_alcuse_2, loo_alcuse_3)
+```
+
+
+```{r}
+plot(loo_alcuse_3)
+```
+
+
+
+# Time-varying predictors
+
+If we have time-varying predictor variable, it is a good idea the decompose these into a subject'specific mean (trait) and a session-by-session deviation from that mean (state).
+
+Let's look at some simulated data, in which patient are assigned to either a control or a therapy (ACT) group. Patients' wellbeing (`score`) is assessed over the course of 12 sessions. In addition, we have the patient-rated `therapeutic alliance`, which reflects how the quality of patient-therapist interactions.
+
+
+```{r}
+# https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/wellbeing.csv
+wellbeing <- read_csv("data/wellbeing.csv")
+```
+
+```{r}
+wellbeing |> 
+  ggplot(aes(session, score, color = therapy)) +
+  geom_line() +
+  geom_point() +
+  geom_line(aes(session, alliance), linetype = 2) +
+  scale_x_continuous(breaks = seq(2, 12, by = 2)) +
+  scale_color_brewer(type = "qual") +
+  facet_wrap(~patient)
+```
+We want to predict patient's wellbeing as a function of the therapeutic alliance, while accounting for a linear trend.
+
+:::exercise
+- How would you specify this model, as well as unconditional models?
+- At which level is the predictor variable `alliance`?
+:::
+
+
+
+## Decomposing time-varying predictors
+
+
+Instead of using the raw `alliance` variable, we will create two new variables: the 
+average alliance, and the session-by-session deviations from the average. The average will be a patient-level (level 2) predictor, and can be used to explain variability between patients, whereas the deviations reflect fluctuations within patients at individual sessions.
+
+
+```{r}
+wellbeing <- wellbeing |> 
+  group_by(patient) |> 
+  mutate(al_between = round(mean(alliance, na.rm = TRUE), 2),
+         al_within = alliance - al_between)
+```
+
+
+
+```{r}
+fit_alliance_1 <- brm(score ~ session + (1 + session| patient),
+                    data = wellbeing,
+                    file = "models/fit_alliance_1")
+```
+
+
+```{r}
+fit_alliance_2 <- brm(score ~ session + al_between + al_within + 
+                      (1 + session  + al_within | patient),
+                    data = wellbeing,
+                    file = "models/fit_alliance_2")
+```
+
+```{r}
+fit_alliance_3 <- brm(score ~ session + al_within + 
+                      (1 + session  + al_within | patient),
+                    data = wellbeing,
+                    file = "models/fit_alliance_3")
+```
+
+
+
+```{r}
+fit_alliance_2
+```
+

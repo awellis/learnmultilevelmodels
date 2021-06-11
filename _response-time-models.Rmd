@@ -1,0 +1,189 @@
+---
+title: "Response Time Models"
+description: | 
+  Models for right-skewed data
+date: 06-11-2021
+author:
+  - first_name: "Andrew"
+    last_name: "Ellis"
+    url: https://github.com/awellis
+    affiliation: Cognitive psychology, perception & methods, Univerity of Bern 
+    affiliation_url: https://www.kog.psy.unibe.ch
+    orcid_id: 0000-0002-2788-936X
+
+citation_url: https://awellis.github.io/learnmultilevelmodels/response-time-models.html
+bibliography: ./bibliography.bib
+output: 
+    distill::distill_article:
+      toc: true
+      toc_float: true
+      toc_depth: 2
+      code_folding: false
+      css: ./css/style.css
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      cache = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+# recall <- bcogsci::df_recall_complete |> 
+#   select(subj, session, block, trial, set_size, response, rt, correct, response_category) |> 
+#   drop_na()
+# recall |> write_csv(file = "data/recall-oberauer.csv")
+
+```
+
+```{r packages}
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(patchwork)
+library(brms)
+
+# set ggplot theme
+theme_set(theme_grey(base_size = 14) +
+            theme(panel.grid = element_blank()))
+
+# set rstan options
+rstan::rstan_options(auto_write = TRUE)
+options(mc.cores = 4)
+```
+
+
+
+```{r}
+library(rtdists)
+data(speed_acc) 
+
+speed_acc <- speed_acc %>%
+  as_tibble()
+
+
+df_speed_acc <- speed_acc %>% 
+   # zwischen 180 ms and 3000 ms
+  filter(rt > 0.18, rt < 3) %>% 
+   # zu Character konvertieren (damit filter funktioniert)
+  mutate(across(c(stim_cat, response), as.character)) %>% 
+  # Korrekte Antworten
+  filter(response != 'error', stim_cat == response) %>% 
+  # wieder zu Factor konvertieren
+  mutate(across(c(stim_cat, response), as_factor))
+```
+
+
+```{r}
+df_speed_acc
+```
+
+
+
+Wir schauen uns vier Versuchspersonen grafisch an:
+
+```{r}
+data_plot <- df_speed_acc %>% 
+  filter(id %in% c(1, 8, 11, 15))
+
+data_plot %>% 
+  ggplot(aes(x = rt)) + 
+    geom_histogram(aes(fill = condition), alpha = 0.5, bins = 60) + 
+    facet_wrap(~id) +
+    coord_cartesian(xlim=c(0, 1.6)) +
+    scale_fill_viridis(discrete = TRUE, option = "E")
+```
+
+
+
+## Shifted Lognormal
+
+Wir interessieren uns hier vor allem für die Shifted Lognormal Verteilung. Diese hat die Dichtefunktion
+
+$$ f(x) = \frac{1} {(x - \theta)\sigma\sqrt{2\pi}} exp\left[ -\frac{1}{2} \left(\frac{ln(x - \theta) - \mu }{\sigma}  \right)^2  \right] $$ 
+mit den drei Paramtern $\mu$, $\sigma$ und $\theta$. $\theta$ verschiebt die ganze Verteilung entlang der X-Achse, während $\mu$ und  $\sigma$ die Form beeinflussen. 
+
+$\mu$ wird als **difficulty** Parameter aufgefasst und beeinflusst sowohl Median als auch Mittelwert. Der Median ist $\theta + exp(\mu)$.
+
+
+$\sigma$ ist der **scale** Parameter (Standardabweichung) und hat einen Einfluss auf Mittelwert, aber nicht auf den Median.
+
+
+Der Mittelwert ist $\theta + exp\left( \mu + \frac{1}{2}\sigma^2\right)$
+
+Von Interesse ist vor hauptsächlich der Parameter $\mu$, weil davon ausgegangen wird, dass Änderungen der Task Schwierigkeit sich vor allem darin manifestieren.
+
+
+Wir können diese Verteilung mit `brms` an unsere Date fitten. Wir müssen dabei aber beachten, dass die Parameter $\mu$ und $\sigma$ auf der Logarithmusskala sind. Wenn wir z.B. $\mu$ mit einem linearen Modell vorhersagen, müssen wir die Koeffizienten exponentieren,damit sie wieder auf der RT Skala sind.
+
+$$ y_i \sim Shifted Lognormal(\mu, \sigma, \theta) $$
+
+$$ log(\mu) = b_0 + b_1 X_1 + ...$$
+Die Parameter $\sigma$ und $\theta$ können ebenfalls vorhergesagt, oder einfach nur geschätzt werden.  
+
+$$  \sigma \sim Dist(...) $$
+
+$$  \theta \sim Dist(...) $$
+
+
+
+```{r}
+priors <- get_prior(rt ~ condition + (1|id), 
+          family = shifted_lognormal(),
+          data = df_speed_acc)
+
+priors %>% 
+  as_tibble() %>% 
+  select(1:4)
+```
+
+
+
+```{r}
+m1 <- brm(rt ~ condition + (1|id),
+          family = shifted_lognormal(),
+          prior = priors,
+          data = df_speed_acc,
+          file = 'models/m1_shiftedlognorm')
+```
+
+
+```{r}
+summary(m1)
+```
+
+
+
+
+```{r}
+# intial values für den Mittelwert des shift Parameters
+inits <- function() {
+  list(Intercept_ndt = -1.7)
+}
+
+
+m2 <- brm(bf(rt ~ condition + (1|id),
+              ndt ~ 1 + (1|id)),
+          family = shifted_lognormal(),
+          prior = priors,
+          data = df_speed_acc,
+          inits = inits,
+          init_r = 0.05,
+          control = list(max_treedepth = 12),
+          file = 'models/m2_shiftedlognorm_ndt')
+
+
+
+formula <- bf(rt ~ condition + (1|id),
+              ndt ~ 1 + (1|id))
+
+m2 <- brm(formula,
+          family = shifted_lognormal(),
+          prior = priors,
+          data = df_speed_acc,
+          inits = inits,
+          init_r = 0.05,
+          control = list(max_treedepth = 12),
+          file = 'models/m2_shiftedlognorm_ndt')
+```
