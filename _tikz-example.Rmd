@@ -1,0 +1,63 @@
+---
+title: "Untitled"
+description: |
+  A new article created using the Distill format.
+author:
+  - name: Nora Jones 
+    url: https://example.com/norajones
+    affiliation: Spacely Sprockets
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Conditional tikz output types; use PDF if this is LaTeX, otherwise use a
+# shrunken down high resolution PNG
+if (knitr::is_latex_output()) {
+  knitr::opts_template$set(
+    tikz.output = list(fig.ext = "pdf")
+  )
+} else {
+  knitr::opts_chunk$set(dev.args = list(type = "cairo"))
+  
+  knitr::opts_template$set(
+    tikz.output = list(fig.ext = "png", out.width = "45%", dpi = 300)
+  )
+}
+```
+
+Here's some tikz stuff in an R Markdown file. It works in HTML, Word, and LaTeX/PDF!
+
+```{r eval=FALSE, include=FALSE}
+# Via https://github.com/ilundberg/slides/blob/master/what_is_your_estimand/what_is_your_estimand_equations.tex
+```
+
+```{tikz, testing-stuff, cache=TRUE, echo=FALSE, fig.align="center", opts.label = "tikz.output"}
+\begin{tikzpicture}[x = .85cm, y = .85cm]
+    \node at (0,0) {$\tau = \frac{1}{n}\sum_{i=1}^n
+    \bigg(
+        Y_i\left(\substack{\text{White,}\\\text{Record}}\right) 
+        - 
+        Y_i\left(\substack{\text{Black,}\\\text{No record}}\right)
+    \bigg)$};
+    \node[anchor = north, font = \scriptsize, align = center] at (-2.6,-1) {Mean\\over \textbf{all}\\applications};
+    \node[anchor = north, font = \scriptsize, align = center] at (-.1,-1) {Potential\\outcome under\\one condition};
+    \node[anchor = north, font = \scriptsize, align = center] at (2.5,-1) {Potential\\outcome under\\another condition};
+    \draw[->, thick] (-2.5,-1) -- (-2.2,-.5);
+    \draw[->, thick] (0,-1) -- (0,-.5);
+    \draw[->, thick] (2.5,-1) -- (2.2,-.5);
+\end{tikzpicture}
+```
+
+And here's some fancypants math with under and over braces. It also works both in HTML and PDF:
+
+$$
+\underbrace{\hat{y}_{it}}_{\substack{\text{Outcome} \\ \\ i = \text{individual} \\ t = \text{time period}}} = \overbrace{\alpha_{it}}^{\text{Intercept}} + \overbrace{\beta x_{it}}^{\substack{\text{Treatment} \\ \text{coefficient}}}
+$$
+
+
+
+

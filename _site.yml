@@ -38,12 +38,12 @@ navbar:
   right:
     - text: "Topics"
       menu:
-        - text: "Longitudinal models"
-          href: long-1.html
-        - text: "Binary data"
-          href: logistic-2.html
-        - text: "Response times"
-          href: rt-2.html
+        - text: "Longitudinal Models"
+          href: longitudinal-models.html
+        - text: "Binary Data"
+          href: binary-models.html
+        - text: "Response Times"
+          href: response-time-models.html
 
     - text: "Assignments"
       menu:
