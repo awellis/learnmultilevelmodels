@@ -16,4 +16,6 @@ knitr
 kableExtra
 patchwork
 tidybayes
+viridisLite
+viridis
 rtdists

@@ -2651,7 +2651,7 @@ Slides
 <nav class="l-text toc figcaption" id="TOC">
 <h3>Contents</h3>
 <ul>
-<li><a href="#exlporing-data">Exlporing data</a></li>
+<li><a href="#exploring-data">Exploring data</a></li>
 <li><a href="#early-intervention">Early Intervention</a>
 <ul>
 <li><a href="#fitting-the-model-with-brms">Fitting the model with brms</a></li>
@@ -2687,7 +2687,7 @@ Slides
 </code></pre>
 </div>
 </div>
-<h1 id="exlporing-data">Exlporing data</h1>
+<h1 id="exploring-data">Exploring data</h1>
 <p>We’ll load a dataset from <span class="citation" data-cites="raudenbushGrowthCurveAnalysis1992"><a href="#ref-raudenbushGrowthCurveAnalysis1992" role="doc-biblioref">RAUDENBUSH and CHAN</a> (<a href="#ref-raudenbushGrowthCurveAnalysis1992" role="doc-biblioref">1992</a>)</span>.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
@@ -2818,7 +2818,7 @@ Slides
 </blockquote>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>early_int</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span><span class='st'>"data/early-intervention.csv"</span><span class='op'>)</span> |&gt; 
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>early_int</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span><span class='st'>"https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/early-intervention.csv"</span><span class='op'>)</span> |&gt; 
   <span class='fu'>mutate</span><span class='op'>(</span>id <span class='op'>=</span> <span class='fu'>as_factor</span><span class='op'>(</span><span class='va'>id</span><span class='op'>)</span>,
          intervention <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>program</span> <span class='op'>==</span> <span class='fl'>0</span>, <span class='st'>"no"</span>, <span class='st'>"yes"</span><span class='op'>)</span>,
                                levels <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"no"</span>, <span class='st'>"yes"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
@@ -2969,7 +2969,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
 
-<span class='va'>alcohol</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span><span class='st'>"data/alcohol1_pp.csv"</span><span class='op'>)</span>
+<span class='va'>alcohol</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span><span class='st'>"https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/alcohol1_pp.csv"</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>alcohol</span><span class='op'>)</span>
 </code></pre>
 </div>
@@ -3276,8 +3276,7 @@ fit_alcuse_3 -0.7       2.4   </code></pre>
 <p>Let’s look at some simulated data, in which patient are assigned to either a control or a therapy (ACT) group. Patients’ wellbeing (<code>score</code>) is assessed over the course of 12 sessions. In addition, we have the patient-rated <code>therapeutic alliance</code>, which reflects how the quality of patient-therapist interactions.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/wellbeing.csv</span>
-<span class='va'>wellbeing</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span><span class='st'>"data/wellbeing.csv"</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>wellbeing</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span><span class='st'>"https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/wellbeing.csv"</span><span class='op'>)</span>
 </code></pre>
 </div>
 </div>

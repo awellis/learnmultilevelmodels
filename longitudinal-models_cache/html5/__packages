@@ -12,7 +12,7 @@ Rcpp
 brms
 Matrix
 lme4
-tidybayes
 knitr
 kableExtra
 patchwork
+tidybayes

@@ -122,6 +122,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   
   <meta name="citation_reference" content="citation_title=Bayesian Item Response Modeling in R with brms and Stan;citation_publication_date=2020;citation_author=Paul-Christian Bürkner"/>
   <meta name="citation_reference" content="citation_title=The estimation of item response models with the lmer function from the Lme4 package in R;citation_publication_date=2011;citation_volume=39;citation_doi=10.18637/jss.v039.i12;citation_author=Paul De Boeck;citation_author=Marjan Bakker;citation_author=Robert Zwitser;citation_author=Michel Nivard;citation_author=Abe Hofman;citation_author=Francis Tuerlinckx;citation_author=Ivailo Partchev"/>
+  <meta name="citation_reference" content="citation_title=Working Memory Capacity Limits Memory for Bindings;citation_publication_date=2019;citation_publisher=Ubiquity Press;citation_volume=2;citation_doi=10.5334/joc.86;citation_issn=2514-4820;citation_author=Klaus Oberauer"/>
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
@@ -2687,7 +2688,7 @@ Slides
 </div>
 </div>
 <h1 id="logistic-regression">Logistic Regression</h1>
-<p>This example is based on<a href="https://vasishth.github.io/bayescogsci/book/">Bayesian Data Analysis for Cognitive Science</a> and uses data from <span class="citation" data-cites="oberauerWorkingMemoryCapacity2019">(<a href="#ref-oberauerWorkingMemoryCapacity2019" role="doc-biblioref"><strong>oberauerWorkingMemoryCapacity2019?</strong></a>)</span>.</p>
+<p>This example is based on<a href="https://vasishth.github.io/bayescogsci/book/">Bayesian Data Analysis for Cognitive Science</a> and uses data from <span class="citation" data-cites="oberauerWorkingMemoryCapacity2019"><a href="#ref-oberauerWorkingMemoryCapacity2019" role="doc-biblioref">Oberauer</a> (<a href="#ref-oberauerWorkingMemoryCapacity2019" role="doc-biblioref">2019</a>)</span>.</p>
 <p>In this study, the effect of word list length on working memory capacity was assessed. Subjects were shown word lists of varying length (set size: 2, 4, 6, or 8 words) and were required to recall the correct word according to its position in the list. A single trial is shown in Figure <a href="#fig:oberauer-2019">1</a>.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="figure"><span id="fig:oberauer-2019"></span>
@@ -2699,7 +2700,7 @@ Figure 1: Subjects were required to indicate the correct word from the studied l
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>recall</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span>file <span class='op'>=</span> <span class='st'>"data/recall-oberauer.csv"</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>recall</span> <span class='op'>&lt;-</span> <span class='fu'>read_csv</span><span class='op'>(</span>file <span class='op'>=</span> <span class='st'>"https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/recall-oberauer.csv"</span><span class='op'>)</span>
 
 <span class='va'>recall</span> <span class='op'>&lt;-</span> <span class='va'>recall</span> |&gt; 
   <span class='fu'>mutate</span><span class='op'>(</span>subj <span class='op'>=</span> <span class='fu'>as_factor</span><span class='op'>(</span><span class='va'>subj</span><span class='op'>)</span><span class='op'>)</span>
@@ -2958,28 +2959,6 @@ $ response_category &lt;chr&gt; &quot;correct&quot;, &quot;correct&quot;, &quot;
                 file_refit <span class='op'>=</span> <span class='st'>"on_change"</span><span class='op'>)</span>
 </code></pre>
 </div>
-<pre><code>Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB \
-  foo.c
-clang -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Users/andrew/Library/R/4.1/library/Rcpp/include/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/RcppEigen/include/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/RcppEigen/include/unsupported&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/BH/include&quot; -I&quot;/Users/andrew/Library/R/4.1/library/StanHeaders/include/src/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/StanHeaders/include/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/RcppParallel/include/&quot;  -I&quot;/Users/andrew/Library/R/4.1/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Users/andrew/Library/R/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include   -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
-In file included from &lt;built-in&gt;:1:
-In file included from /Users/andrew/Library/R/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-In file included from /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Dense:1:
-In file included from /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Core:88:
-/Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
-namespace Eigen {
-^
-/Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
-namespace Eigen {
-               ^
-               ;
-In file included from &lt;built-in&gt;:1:
-In file included from /Users/andrew/Library/R/4.1/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
-In file included from /Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Dense:1:
-/Users/andrew/Library/R/4.1/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
-#include &lt;complex&gt;
-         ^~~~~~~~~
-3 errors generated.
-make: *** [foo.o] Error 1</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
@@ -2996,21 +2975,21 @@ Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
 Group-Level Effects: 
 ~subj (Number of levels: 20) 
                           Estimate Est.Error l-95% CI u-95% CI Rhat
-sd(Intercept)                 0.56      0.13     0.37     0.83 1.00
-sd(c_set_size)                0.09      0.04     0.02     0.18 1.00
-cor(Intercept,c_set_size)    -0.56      0.28    -0.95     0.14 1.00
+sd(Intercept)                 0.54      0.12     0.37     0.82 1.00
+sd(c_set_size)                0.09      0.04     0.02     0.18 1.01
+cor(Intercept,c_set_size)    -0.56      0.28    -0.95     0.12 1.00
                           Bulk_ESS Tail_ESS
-sd(Intercept)                  892     1257
-sd(c_set_size)                 833     1097
-cor(Intercept,c_set_size)     1376     1448
+sd(Intercept)                  915     1368
+sd(c_set_size)                 771     1160
+cor(Intercept,c_set_size)     1820     1473
 
 Population-Level Effects: 
            Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-Intercept      2.23      0.15     1.91     2.51 1.01      589
-c_set_size    -0.53      0.03    -0.58    -0.45 1.01     1004
+Intercept      2.25      0.14     1.93     2.52 1.00      743
+c_set_size    -0.53      0.03    -0.58    -0.46 1.00     1139
            Tail_ESS
-Intercept       769
-c_set_size      847
+Intercept       898
+c_set_size      973
 
 Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -3481,13 +3460,16 @@ S4wantCurse  1.06641747 0.1649784  0.7499007  1.3929517</code></pre>
 </div>
 <p><img src="binary-models_files/figure-html5/unnamed-chunk-39-1.png" width="624" /></p>
 </div>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-burknerBayesianItemResponse2020a" class="csl-entry" role="doc-biblioentry">
 Bürkner, Paul-Christian. 2020. <span>“Bayesian <span>Item Response Modeling</span> in <span>R</span> with Brms and <span>Stan</span>.”</span> February 1, 2020. <a href="http://arxiv.org/abs/1905.09501">http://arxiv.org/abs/1905.09501</a>.
 </div>
 <div id="ref-deboeck2011" class="csl-entry" role="doc-biblioentry">
 De Boeck, Paul, Marjan Bakker, Robert Zwitser, Michel Nivard, Abe Hofman, Francis Tuerlinckx, and Ivailo Partchev. 2011. <span>“The Estimation of Item Response Models with the Lmer Function from the Lme4 Package in <span>R</span>.”</span> <em>Journal of Statistical Software</em> 39 (12): 1–28. <a href="https://doi.org/10.18637/jss.v039.i12">https://doi.org/10.18637/jss.v039.i12</a>.
+</div>
+<div id="ref-oberauerWorkingMemoryCapacity2019" class="csl-entry" role="doc-biblioentry">
+Oberauer, Klaus. 2019. <span>“Working <span>Memory Capacity Limits Memory</span> for <span>Bindings</span>.”</span> <em>Journal of Cognition</em> 2 (1, 1): 40. <a href="https://doi.org/10.5334/joc.86">https://doi.org/10.5334/joc.86</a>.
 </div>
 </div>
 <!--radix_placeholder_article_footer-->

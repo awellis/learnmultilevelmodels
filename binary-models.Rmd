@@ -66,7 +66,7 @@ knitr::include_graphics("images/oberauer-2019.png")
 
 
 ```{r}
-recall <- read_csv(file = "data/recall-oberauer.csv")
+recall <- read_csv(file = "https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/recall-oberauer.csv")
 
 recall <- recall |> 
   mutate(subj = as_factor(subj))

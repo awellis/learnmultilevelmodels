@@ -29,19 +29,12 @@ knitr::opts_chunk$set(echo = TRUE,
                       cache = TRUE,
                       warning = FALSE,
                       message = FALSE)
-
-# recall <- bcogsci::df_recall_complete |> 
-#   select(subj, session, block, trial, set_size, response, rt, correct, response_category) |> 
-#   drop_na()
-# recall |> write_csv(file = "data/recall-oberauer.csv")
-
 ```
 
 ```{r packages}
-library(knitr)
 library(kableExtra)
+library(viridis)
 library(tidyverse)
-library(patchwork)
 library(brms)
 
 # set ggplot theme
@@ -55,6 +48,18 @@ options(mc.cores = 4)
 
 
 
+
+:::exercise
+Check out this interactive web app for response time distributions [@lindelovReactionTimeDistributions2021].
+
+[Reaction time distributions: an interactive overview](https://lindeloev.shinyapps.io/shiny-rt/)
+:::
+
+
+We will try to fit a distribution that is appropriate for response times to data from @wagenmakersLinearRelationMean2007.
+
+Subjects performed a lexical decision task in two conditions (speed stress / accuracy stress). We will look at conly correct responses.
+
 ```{r}
 library(rtdists)
 data(speed_acc) 
@@ -64,13 +69,13 @@ speed_acc <- speed_acc %>%
 
 
 df_speed_acc <- speed_acc %>% 
-   # zwischen 180 ms and 3000 ms
+   # remove rts under 180 ms and over 3 sec
   filter(rt > 0.18, rt < 3) %>% 
-   # zu Character konvertieren (damit filter funktioniert)
+   # convert to char
   mutate(across(c(stim_cat, response), as.character)) %>% 
-  # Korrekte Antworten
+  # Kcorrect responses
   filter(response != 'error', stim_cat == response) %>% 
-  # wieder zu Factor konvertieren
+  # convert back to factor
   mutate(across(c(stim_cat, response), as_factor))
 ```
 
@@ -80,8 +85,7 @@ df_speed_acc
 ```
 
 
-
-Wir schauen uns vier Versuchspersonen grafisch an:
+Plot a few subjects to get an overview.
 
 ```{r}
 data_plot <- df_speed_acc %>% 
@@ -99,28 +103,40 @@ data_plot %>%
 
 ## Shifted Lognormal
 
-Wir interessieren uns hier vor allem für die Shifted Lognormal Verteilung. Diese hat die Dichtefunktion
+We'll not try to fit a shifted-lognormal distribution
+
+
+The density is given by:
 
 $$ f(x) = \frac{1} {(x - \theta)\sigma\sqrt{2\pi}} exp\left[ -\frac{1}{2} \left(\frac{ln(x - \theta) - \mu }{\sigma}  \right)^2  \right] $$ 
-mit den drei Paramtern $\mu$, $\sigma$ und $\theta$. $\theta$ verschiebt die ganze Verteilung entlang der X-Achse, während $\mu$ und  $\sigma$ die Form beeinflussen. 
-
-$\mu$ wird als **difficulty** Parameter aufgefasst und beeinflusst sowohl Median als auch Mittelwert. Der Median ist $\theta + exp(\mu)$.
 
 
-$\sigma$ ist der **scale** Parameter (Standardabweichung) und hat einen Einfluss auf Mittelwert, aber nicht auf den Median.
+m$\mu$, $\sigma$ und $\theta$ are the three parameters. $\theta$ shifts the entire distribition along the x axis. $\mu$ and  $\sigma$ have an effect on the shape.  
 
 
-Der Mittelwert ist $\theta + exp\left( \mu + \frac{1}{2}\sigma^2\right)$
 
-Von Interesse ist vor hauptsächlich der Parameter $\mu$, weil davon ausgegangen wird, dass Änderungen der Task Schwierigkeit sich vor allem darin manifestieren.
+$\mu$ is often interpreted as a **difficulty** parameter. Both median and mean depend on $\mu$
+
+The median is given by $\theta + exp(\mu)$.     
 
 
-Wir können diese Verteilung mit `brms` an unsere Date fitten. Wir müssen dabei aber beachten, dass die Parameter $\mu$ und $\sigma$ auf der Logarithmusskala sind. Wenn wir z.B. $\mu$ mit einem linearen Modell vorhersagen, müssen wir die Koeffizienten exponentieren,damit sie wieder auf der RT Skala sind.
+$\sigma$ is the **scale** parameter (standard deviation); It affects the mean, but not the median.
+
+
+The mean is $\theta + exp\left( \mu + \frac{1}{2}\sigma^2\right)$
+
+
+We are mainly interested in the $\mu$ parameter. 
+
+When fitting with brms, we need to be aware that $\mu$ and $\sigma$ are on the log scale.
+
+
 
 $$ y_i \sim Shifted Lognormal(\mu, \sigma, \theta) $$
 
 $$ log(\mu) = b_0 + b_1 X_1 + ...$$
-Die Parameter $\sigma$ und $\theta$ können ebenfalls vorhergesagt, oder einfach nur geschätzt werden.  
+Both  $\sigma$ and $\theta$ may also be predicted, or simply estimated.
+ 
 
 $$  \sigma \sim Dist(...) $$
 
@@ -138,6 +154,10 @@ priors %>%
   select(1:4)
 ```
 
+
+```{r}
+priors <- prior(normal(0, 0.1), class = b)
+```
 
 
 ```{r}
@@ -157,11 +177,10 @@ summary(m1)
 
 
 ```{r}
-# intial values für den Mittelwert des shift Parameters
+# intial values for expected ndt
 inits <- function() {
   list(Intercept_ndt = -1.7)
 }
-
 
 m2 <- brm(bf(rt ~ condition + (1|id),
               ndt ~ 1 + (1|id)),
@@ -172,18 +191,14 @@ m2 <- brm(bf(rt ~ condition + (1|id),
           init_r = 0.05,
           control = list(max_treedepth = 12),
           file = 'models/m2_shiftedlognorm_ndt')
-
-
-
-formula <- bf(rt ~ condition + (1|id),
-              ndt ~ 1 + (1|id))
-
-m2 <- brm(formula,
-          family = shifted_lognormal(),
-          prior = priors,
-          data = df_speed_acc,
-          inits = inits,
-          init_r = 0.05,
-          control = list(max_treedepth = 12),
-          file = 'models/m2_shiftedlognorm_ndt')
 ```
+
+
+```{r}
+pp_check(m2, 
+         type = "dens_overlay_grouped", 
+         group = "condition",
+         nsamples = 200) 
+```
+
+

@@ -54,7 +54,7 @@ options(mc.cores = 4)
 
 
 
-# Exlporing data
+# Exploring data
 
 
 We'll load a dataset from @raudenbushGrowthCurveAnalysis1992.
@@ -151,7 +151,7 @@ We'll start with a data set on early intervention on child development [@singerA
  
  
 ```{r}
-early_int <- read_csv("data/early-intervention.csv") |> 
+early_int <- read_csv("https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/early-intervention.csv") |> 
   mutate(id = as_factor(id),
          intervention = factor(ifelse(program == 0, "no", "yes"),
                                levels = c("no", "yes")))
@@ -267,7 +267,7 @@ How would you go about demonstrating evidence for or against a difference betwee
 ```{r}
 library(tidyverse)
 
-alcohol <- read_csv("data/alcohol1_pp.csv")
+alcohol <- read_csv("https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/alcohol1_pp.csv")
 head(alcohol)
 ```
 
@@ -436,8 +436,7 @@ Let's look at some simulated data, in which patient are assigned to either a con
 
 
 ```{r}
-# https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/wellbeing.csv
-wellbeing <- read_csv("data/wellbeing.csv")
+wellbeing <- read_csv("https://raw.githubusercontent.com/awellis/learnmultilevelmodels/main/data/wellbeing.csv")
 ```
 
 ```{r}
